@@ -1,6 +1,9 @@
 (ns osi.handler
   (:require [ring.util.response :as r]
-            [cognitect.transit :as trans])
+            [cognitect.transit :as trans]
+            [cheshire.core :as json]
+            [wharf.core :refer [transform-keys hyphen->underscore]]
+            [osi.db :as db])
   (:import [java.io ByteArrayOutputStream]))
 
 (defn ->transit [obj]
@@ -18,5 +21,11 @@
 (defn api-call
   [{:keys [status body]}]
   (let [query (trans/read (trans/reader body :json))]
-    (resp (->transit (into {} (map dat/read query)))
+    (resp (->transit (into {} query))
           :type "transit+json")))
+
+(defn ->js&rby [json]
+  "Format data for js & rby"
+  (json/generate-string
+   (transform-keys (comp hyphen->underscore name)
+                   (db/rm-ns json))))
