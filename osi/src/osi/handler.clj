@@ -14,3 +14,9 @@
   (-> (r/response body)
       (r/status status)
       (r/content-type (str "application/" type))))
+
+(defn api-call
+  [{:keys [status body]}]
+  (let [query (trans/read (trans/reader body :json))]
+    (resp (->transit (into {} (map dat/read query)))
+          :type "transit+json")))
