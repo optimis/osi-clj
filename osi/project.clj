@@ -14,5 +14,6 @@
                  [com.datomic/datomic-pro "0.9.5394" :exclusions [joda-time]]
                  [ring/ring "1.5.0"]
                  [com.cognitect/transit-clj "0.8.288"]
+                 [http-kit "2.2.0"]
                  [cheshire "5.6.3"]
                  [wharf "0.2.0-SNAPSHOT"]])
