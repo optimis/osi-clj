@@ -25,37 +25,26 @@
       (header headers)
       (content-type type)))
 
-;;; TODO: templatize
-(defn get
-  ([uri] (get uri {}))
-  ([uri params]
-   (let [headers {:headers {"Content-Type" "application/json"
-                            "Access-Token" (System/getenv "OCP_ACCESS_TOKEN")}}
-         resp (http/get uri (merge headers params))
-         {:keys [errors] :as resp} (-> @resp :body json/parse-string
-                                       keywordize-keys)] ; abstract json parsing
-     (if errors (assoc resp :status 422)
-         resp))))
+(defn errors? [{:keys [errors] :as resp}]
+  errors)
 
-;;; TODO: Ask why we have no auth here
-(defn post [uri req]
-  (let [resp (http/post uri req)
-        {:keys [errors] :as resp} (-> @resp :body json/parse-string
-                                     keywordize-keys)]
-    (if errors (assoc resp :status 422)
-        resp)))
+(defn resp-body [resp]
+  (if (errors? resp) {}
+      (-> resp
+          :body json/parse-string keywordize-keys)))
 
-(defn delete [uri]
-  @(http/delete uri))
+;;; TODO: not sure if needed
+(defn parse-errs [resp]
+  (if (errors? resp) (assoc resp :status 422)
+      resp))
 
 (def content-uri
   (or (System/getenv "CONTENT_URI") "http://localhost:4000"))
 
-;;; TODO: wrap transit
-(defn pull [query]
-  (let [{:keys [status body] :as request}
-        @(http/post (str content-uri "/api")
-                    {:as :stream
-                     :headers {"Content-Type" "application/transit+json"}
-                     :body (->transit query)})]
-    (<-transit body)))
+(defn pull [req]
+  (http/post (str content-uri "/api") req))
+
+(defn pull-body [resp]
+  (-> @resp resp-body <-transit))
+
+
