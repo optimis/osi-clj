@@ -1,21 +1,28 @@
 (ns osi.http.client
-  (:require [ring.util.response :as r]
+  (:require [osi.http.util :refer [->transit <-transit]]
+            [ring.util.response :as r]
+            [clojure.walk :refer [keywordize-keys]]
             [cheshire.core :as json]
             [org.httpkit.client :as http]))
 
-(defn- content-type [type]
-  (r/content-type (str "application/" type)))
+(defn- content-type [resp type]
+  (r/content-type resp (str "application/" type)))
+
+(defn- header [resp h-map]
+  (update-in resp [:headers] #(merge h-map %)))
 
 (defn req
-  [body & {:keys [type] :or {type "json"}}]
+  [body & {:keys [type headers] :or {type "json" headers {}}}]
   (-> {:body body}
-      (content-type type)))
+      (content-type type)
+      (header headers)))
 
 (defn resp
-  [body & {:keys [status type]
-           :or {status 200 type "json"}}]
+  [body & {:keys [status type headers]
+           :or {status 200 type "json" headers {}}}]
   (-> (r/response body)
       (r/status status)
+      (header headers)
       (content-type type)))
 
 ;;; TODO: templatize
@@ -24,13 +31,22 @@
   ([uri params]
    (let [headers {:headers {"Content-Type" "application/json"
                             "Access-Token" (System/getenv "OCP_ACCESS_TOKEN")}}
-         res (http/get uri (merge headers params))]
-     (-> @res :body json/parse-string keywordize-keys)))) ; abstract json parsing
+         resp (http/get uri (merge headers params))
+         {:keys [errors] :as resp} (-> @resp :body json/parse-string
+                                       keywordize-keys)] ; abstract json parsing
+     (if errors (assoc resp :status 422)
+         resp)))) 
 
 ;;; TODO: Ask why we have no auth here
 (defn post [uri body]
-  (let [res (http/post uri (req body))]
-    (-> @res :body json/parse-string keywordize-keys)))
+  (let [resp (http/post uri (req body))
+        {:keys [errors] :as resp} (-> @resp :body json/parse-string
+                                     keywordize-keys)]
+    (if errors (assoc resp :status 422)
+        resp)))
+
+(defn delete [uri]
+  @(http/delete uri))
 
 (def content-uri
   (or (System/getenv "CONTENT_URI") "http://localhost:4000"))
