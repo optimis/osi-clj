@@ -35,11 +35,11 @@
          {:keys [errors] :as resp} (-> @resp :body json/parse-string
                                        keywordize-keys)] ; abstract json parsing
      (if errors (assoc resp :status 422)
-         resp)))) 
+         resp))))
 
 ;;; TODO: Ask why we have no auth here
-(defn post [uri body]
-  (let [resp (http/post uri (req body))
+(defn post [uri req]
+  (let [resp (http/post uri req)
         {:keys [errors] :as resp} (-> @resp :body json/parse-string
                                      keywordize-keys)]
     (if errors (assoc resp :status 422)
