@@ -19,7 +19,6 @@
                  [ring-transit "0.1.6"]
                  [com.cognitect/transit-clj "0.8.288"]
                  [compojure "1.5.1"]
-                 [yleisradio/new-reliquary "1.0.0"]
                  [cheshire "5.6.3"]
                  [wharf "0.2.0-SNAPSHOT"]
                  [yleisradio/new-reliquary "1.0.0"]]
