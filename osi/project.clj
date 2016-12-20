@@ -13,7 +13,17 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [com.datomic/datomic-pro "0.9.5394" :exclusions [joda-time]]
                  [ring/ring "1.5.0"]
+                 [ring-logger "0.7.6"]
+                 [ring-transit "0.1.6"]
+                 [compojure "1.5.1"]
                  [com.cognitect/transit-clj "0.8.288"]
                  [http-kit "2.2.0"]
                  [cheshire "5.6.3"]
-                 [wharf "0.2.0-SNAPSHOT"]])
+                 [wharf "0.2.0-SNAPSHOT"]
+                 [yleisradio/new-reliquary "1.0.0"]]
+  :plugins [[s3-wagon-private "1.2.0"]
+            [com.carouselapps/jar-copier "0.2.0"]]
+  :prep-tasks ["javac" "compile" "jar-copier"]
+  :jar-copier {:java-agents true
+               :destination "resources/jars"}
+  :java-agents [[com.newrelic.agent.java/newrelic-agent "3.33.0"]])
