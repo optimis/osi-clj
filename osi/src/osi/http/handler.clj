@@ -9,8 +9,8 @@
             [ring.middleware.reload :refer (wrap-reload)]
             [ring.middleware.transit :refer (wrap-transit-params)]
             [ring.logger :refer (wrap-with-logger)]
-            [osi.http.client :refer (resp)]
-            [osi.http.util :refer (->transit)]
+            [osi.http.handler :refer (resp)]
+            [osi.http.util :refer (->transit <-transit header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
@@ -20,6 +20,14 @@
 
 (defn profile-request [access-token]
   @(http/get (str uri "/oauth2.0/profile?access_token=" access-token)))
+
+(defn resp
+  [body & {:keys [status type headers]
+           :or {status 200 type "json" headers {}}}]
+  (-> (r/response body)
+      (r/status status)
+      (header headers)
+      (content-type type)))
 
 (defn api-call
   [{:keys [status body]}]

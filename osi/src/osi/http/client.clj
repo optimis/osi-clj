@@ -1,29 +1,14 @@
 (ns osi.http.client
-  (:require [osi.http.util :refer [->transit <-transit]]
-            [ring.util.response :as r]
+  (:require [osi.http.util :refer [->transit <-transit content-type header]]
             [clojure.walk :refer [keywordize-keys]]
             [cheshire.core :as json]
             [org.httpkit.client :as http]))
-
-(defn- content-type [resp type]
-  (r/content-type resp (str "application/" type)))
-
-(defn- header [resp h-map]
-  (update-in resp [:headers] #(merge h-map %)))
 
 (defn req
   [body & {:keys [type headers] :or {type "json" headers {}}}]
   (-> {:body body}
       (content-type type)
       (header headers)))
-
-(defn resp
-  [body & {:keys [status type headers]
-           :or {status 200 type "json" headers {}}}]
-  (-> (r/response body)
-      (r/status status)
-      (header headers)
-      (content-type type)))
 
 (defn errors? [{:keys [errors] :as resp}]
   errors)

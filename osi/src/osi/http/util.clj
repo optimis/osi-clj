@@ -2,6 +2,7 @@
   (:require [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
+            [ring.util.response :as r]
             [osi.db :as db])
   (:import [java.io ByteArrayOutputStream]))
 
@@ -18,3 +19,9 @@
   (json/generate-string
    (transform-keys (comp hyphen->underscore name)
                    (db/rm-ns json))))
+
+(defn content-type [resp type]
+  (r/content-type resp (str "application/" type)))
+
+(defn header [resp h-map]
+  (update-in resp [:headers] #(merge h-map %)))
