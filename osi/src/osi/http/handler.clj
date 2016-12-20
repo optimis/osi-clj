@@ -1,12 +1,17 @@
 (ns osi.http.handler
   (:require [ring.util.response :as r]
-            [ring.middleware.transit :refer [wrap-transit-params]]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [osi.http.util :refer (->transit)]))
-
+            [compojure.handler :refer (site)]
+            [ring.middleware.params :refer (wrap-params)]
+            [ring.middleware.reload :refer (wrap-reload)]
+            [ring.middleware.transit :refer (wrap-transit-params)]
+            [ring.logger :refer (wrap-with-logger)]
+            [osi.http.client :refer (resp)]
+            [osi.http.util :refer (->transit)]
+            [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
              "https://cas-staging.optimispt.com"))
@@ -36,7 +41,7 @@
         (hdlr req)
         (resp "Unauthorized" :status 401)))))
 
-(def hdlr [routes]
+(defn hdlr [routes]
   (-> routes
       (wrap-with-logger)
       (wrap-newrelic-transaction)
