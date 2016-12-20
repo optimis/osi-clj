@@ -1,16 +1,17 @@
 (ns osi.http.handler
   (:require [ring.util.response :as r]
+            [ring.middleware.params :refer (wrap-params)]
+            [ring.middleware.reload :refer (wrap-reload)]
+            [ring.middleware.transit :refer [wrap-transit-params]]
+            [ring.logger :refer (wrap-with-logger)]
+            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
+            [compojure.handler :refer (site)]
+            [osi.http.handler :refer (resp)]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [compojure.handler :refer (site)]
-            [ring.middleware.params :refer (wrap-params)]
-            [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.transit :refer (wrap-transit-params)]
-            [ring.logger :refer (wrap-with-logger)]
-            [osi.http.client :refer (resp)]
-            [osi.http.util :refer (->transit)]
+            [osi.http.util :refer (->transit <-transit header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
@@ -20,6 +21,14 @@
 
 (defn profile-request [access-token]
   @(http/get (str uri "/oauth2.0/profile?access_token=" access-token)))
+
+(defn resp
+  [body & {:keys [status type headers]
+           :or {status 200 type "json" headers {}}}]
+  (-> (r/response body)
+      (r/status status)
+      (header headers)
+      (content-type type)))
 
 (defn api-call
   [{:keys [status body]}]
