@@ -4,7 +4,6 @@
             [ring.middleware.reload :refer (wrap-reload)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
-            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
             [osi.http.handler :refer (resp)]
             [cognitect.transit :as trans]
