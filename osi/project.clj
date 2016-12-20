@@ -14,6 +14,7 @@
                  [com.datomic/datomic-pro "0.9.5394" :exclusions [joda-time]]
                  [http-kit "2.2.0"]
                  [ring/ring "1.5.0"]
+                 [log4j/log4j "1.2.17"]
                  [ring-logger "0.7.6"]
                  [ring-transit "0.1.6"]
                  [com.cognitect/transit-clj "0.8.288"]
