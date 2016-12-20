@@ -1,15 +1,16 @@
 (ns osi.http.handler
   (:require [ring.util.response :as r]
+            [ring.middleware.params :refer (wrap-params)]
+            [ring.middleware.reload :refer (wrap-reload)]
+            [ring.middleware.transit :refer [wrap-transit-params]]
+            [ring.logger :refer (wrap-with-logger)]
+            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
+            [compojure.handler :refer (site)]
+            [osi.http.handler :refer (resp)]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [compojure.handler :refer (site)]
-            [ring.middleware.params :refer (wrap-params)]
-            [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.transit :refer (wrap-transit-params)]
-            [ring.logger :refer (wrap-with-logger)]
-            [osi.http.handler :refer (resp)]
             [osi.http.util :refer (->transit <-transit header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
