@@ -5,7 +5,6 @@
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
             [compojure.handler :refer (site)]
-            [osi.http.handler :refer (resp)]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
