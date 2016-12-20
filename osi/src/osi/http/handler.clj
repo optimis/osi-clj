@@ -6,7 +6,6 @@
             [ring.logger :refer (wrap-with-logger)]
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
-            [osi.http.handler :refer (resp)]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
