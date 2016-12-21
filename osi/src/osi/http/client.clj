@@ -1,7 +1,5 @@
 (ns osi.http.client
-  (:require [osi.http.util :refer [->transit <-transit content-type header]]
-            [clojure.walk :refer [keywordize-keys]]
-            [cheshire.core :as json]
+  (:require [osi.http.util :refer [->transit <-transit ->clj-map content-type header]]
             [org.httpkit.client :as http]))
 
 (defn req
@@ -10,17 +8,16 @@
       (content-type type)
       (header headers)))
 
-(defn errors? [{:keys [errors] :as resp}]
+(defn errs? [{:keys [errors] :as resp}]
   errors)
 
 (defn resp-body [resp]
-  (if (errors? resp) {}
-      (-> resp
-          :body json/parse-string keywordize-keys)))
+  (if (errs? resp) {}
+      (-> resp :body ->clj-map)))
 
 ;;; TODO: not sure if needed
 (defn parse-errs [resp]
-  (if (errors? resp) (assoc resp :status 422)
+  (if (errs? resp) (assoc resp :status 422)
       resp))
 
 (def content-uri
