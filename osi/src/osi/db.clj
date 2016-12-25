@@ -1,16 +1,17 @@
 (ns osi.db
   (:require [clojure.walk :refer (postwalk)]
+            [environ.core :refer (env)]
             [datomic.api :as d]))
 
 (defn db-uri
   ([] (db-uri "assessments"))
   ([db]
    (let [uri
-         (case (System/getenv "DATOMIC_STORAGE")
+         (case (env :datomic-storage)
            "sql"
            "datomic:sql://%s?jdbc:mysql://%s/datomic?serverTimezone=PST&user=datomic&password=datomic"
            "datomic:dev://datomicdb:4334/%s")
-         ip (System/getenv "DATOMIC_STORAGE_IP")]
+         ip (env :datomic-storage-ip)]
      (format uri db ip))))
 
 (defn conn []
