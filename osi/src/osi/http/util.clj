@@ -1,5 +1,6 @@
 (ns osi.http.util
-  (:require [cognitect.transit :as trans]
+  (:require [clojure.walk :refer [keywordize-keys]]
+            [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [ring.util.response :as r]
@@ -13,6 +14,9 @@
 
 (defn <-transit [obj]
   (trans/read (trans/reader obj :json)))
+
+(defn ->clj-map [str]
+  (-> str json/parse-string keywordize-keys))
 
 (defn js-compat [json]
   "Format data for js & rby"

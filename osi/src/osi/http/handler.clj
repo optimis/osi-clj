@@ -4,12 +4,13 @@
             [ring.middleware.reload :refer (wrap-reload)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
+            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [osi.http.util :refer (->transit <-transit header content-type)]
+            [osi.http.util :refer (->transit <-transit ->clj-map header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
@@ -27,6 +28,9 @@
       (r/status status)
       (header headers)
       (content-type type)))
+
+(defn req-body [req]
+  (-> req :body slurp ->clj-map))
 
 (defn api-call
   [{:keys [status body]}]
