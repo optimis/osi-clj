@@ -4,7 +4,7 @@
             [datomic.api :as d]))
 
 (defn db-uri
-  ([] (db-uri "assessments"))
+  ([] (db-uri "assess"))
   ([db]
    (let [uri
          (case (env :datomic-storage)
@@ -19,6 +19,9 @@
 
 (defn tmp-usrid []
   (d/tempid :db.part/user))
+
+(defn tmp-txid []
+  (d/tempid :db.part/tx))
 
 (defn transact [tx]
   "Transacts mutations (tx) over a datomic connection."
@@ -49,6 +52,15 @@
   ([q args exp]
    (d/q q (d/db (conn)) args exp)))
 
+(defn hq
+  "Executes a datomic query using the history db value.
+  Optionally takes query arguments and a pull expression."
+  ([q]
+   (d/q q (d/history (d/db (conn)))))
+  ([q args]
+   (d/q q (d/history (d/db (conn))) args))
+  ([q args exp]
+   (d/q q (d/history (d/db (conn))) args exp)))
 
 (defn rm-db-ids [map]
   (postwalk #(if (map? %) (dissoc % :db/id) %)
