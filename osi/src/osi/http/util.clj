@@ -18,11 +18,13 @@
 (defn ->clj-map [str]
   (-> str json/parse-string keywordize-keys))
 
-(defn js-compat [json]
+(defn rby-compat [obj]
+  (transform-keys (comp hyphen->underscore name)
+                  (db/rm-ns obj)))
+
+(defn js-compat [obj]
   "Format data for js & rby"
-  (json/generate-string
-   (transform-keys (comp hyphen->underscore name)
-                   (db/rm-ns json))))
+  (-> obj rby-compat json/generate-string))
 
 (defn content-type [resp type]
   (r/content-type resp (str "application/" type)))
