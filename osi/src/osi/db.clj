@@ -4,12 +4,12 @@
             [datomic.api :as d]))
 
 (defn db-uri
-  ([] (db-uri "assess"))
+  ([] (db-uri (env :datomic-db)))
   ([db]
    (let [uri
          (case (env :datomic-storage)
-           "sql"
-           "datomic:sql://%s?jdbc:mysql://%s/datomic?serverTimezone=PST&user=datomic&password=datomic"
+           "sql" "datomic:sql://%s?jdbc:mysql://%s/datomic?serverTimezone=PST&user=datomic&password=datomic"
+           "mem" "datomic:mem://%s"
            "datomic:dev://datomicdb:4334/%s")
          ip (env :datomic-storage-ip)]
      (format uri db ip))))
@@ -22,6 +22,13 @@
 
 (defn tmp-txid []
   (d/tempid :db.part/tx))
+
+(defn tx->id [conn tx]
+  (let [tmp-id (:db/id tx)
+        tx-d @(d/transact (conn) [tx])
+        db (:db-after tx-d)
+        ent-id (d/resolve-tempid db (:tempids tx-d) tmp-id)]
+    ent-id))
 
 (defn transact [tx]
   "Transacts mutations (tx) over a datomic connection."
@@ -47,10 +54,8 @@
    Optionally takes query arguments and a pull expression."
   ([q]
    (d/q q (d/db (conn))))
-  ([q args]
-   (d/q q (d/db (conn)) args))
-  ([q args exp]
-   (d/q q (d/db (conn)) args exp)))
+  ([q & args]
+   (apply d/q q (d/db (conn)) args)))
 
 (defn hq
   "Executes a datomic query using the history db value.
