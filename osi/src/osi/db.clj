@@ -17,6 +17,12 @@
 (defn conn []
   (d/connect (db-uri)))
 
+(defn delete-db []
+  (d/delete-database (db-uri)))
+
+(defn create-db []
+  (d/create-database (db-uri)))
+
 (defn tmp-usrid []
   (d/tempid :db.part/user))
 
@@ -45,6 +51,13 @@
    (d/pull (d/db (conn)) '[*] id))
   ([id exp]
    (d/pull (d/db (conn)) exp id)))
+
+(defn pull-entity
+  ([id]
+   (pull-entity id '[*]))
+  ([id selector]
+   (let [id (:db/id (entity id))]
+     (pull id selector))))
 
 (defn pull-many [exp col]
   (d/pull-many (d/db (conn)) exp col))
