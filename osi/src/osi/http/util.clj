@@ -10,6 +10,7 @@
 (defn ->transit [obj]
   (let [out (ByteArrayOutputStream.)]
     (trans/write (trans/writer out :json) obj)
+    (.reset out)
     (.toString out "UTF-8")))
 
 (defn <-transit [obj]
