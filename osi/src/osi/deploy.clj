@@ -1,5 +1,5 @@
 (ns osi.deploy
-  (:require [clojure.string :refer (join)]
+  (:require [clojure.string :refer (upper-case join)]
             [environ.core :refer (env)]
             [wharf.core :refer (transform-keys hyphen->underscore capitalize)]
             [me.raynes.conch :refer (programs)]
@@ -18,25 +18,33 @@
     (ll/stream-to-out p :out)))
 
 (defn ubr-jar []
-  (ll/stream-to-out (ll/proc "lein" "uberjar") :out))
+  (let [p (ll/proc "lein" "with-profile" (env :name) "uberjar")]
+    (ll/stream-to-out p :out)))
 
-(defn envvars-str [envvars]
+(defn envvars-vec [envvars]
   (->> envvars
        (select-keys env)
        (transform-keys (comp hyphen->underscore name))
-       (transform-keys clojure.string/upper-case)
-       (map (fn [[k v]] (str "-e " k "=" v)))
-       (join " ")))
+       (transform-keys upper-case)
+       (map (fn [[k v]] ["-e" (str k "=" v)]))))
+
+(def ntwrk ["--net" (env :dckr-ntwrk)])
+
+(def ports
+  ["-p" (env :dckr-ports)])
+
+(def links
+  ["--link" (env :dckr-links)])
 
 (defn deploy [app envvars]
   (let [ver "latest"
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
-    (prn (str "Deploying " app " to " dtr-str))
     (ubr-jar)
+    (dckr "rm" ["-f" app])
+    (dckr "rmi" [app-ver])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])
     (dckr "pull" [dtr-str])
-    (dckr "rm" ["-f" app])
-    (dckr "run" ["--name" app "-d" (envvars-str envvars) "-p" "4004:4004" "--link" "redis:redis" dtr-str])))
+    (dckr "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
