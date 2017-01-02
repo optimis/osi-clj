@@ -15,7 +15,7 @@
      (format uri db ip))))
 
 (defn db-conn [db-name]
-  (fn () (d/connect (db-uri db-nome))))
+  (fn [] (d/connect (db-uri db-name))))
 
 (defn delete-db []
   (d/delete-database (db-uri)))
