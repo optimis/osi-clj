@@ -29,17 +29,6 @@
 (defn tmp-txid []
   (d/tempid :db.part/tx))
 
-(defn tx->id [conn tx]
-  (let [tmp-id (:db/id tx)
-        tx-d @(d/transact (conn) [tx])
-        db (:db-after tx-d)
-        ent-id (d/resolve-tempid db (:tempids tx-d) tmp-id)]
-    ent-id))
-
-;; TODO: unclear what this is doing
-(defn entity [id]
-  (d/entity (d/db (conn)) id))
-
 (defn rm-db-ids [map]
   (postwalk #(if (map? %) (dissoc % :db/id) %)
             map))
