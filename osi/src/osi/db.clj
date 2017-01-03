@@ -37,7 +37,7 @@
   "rm namespaces from map keys."
   (postwalk #(if (keyword? %)
                (keyword (name %)) %)
-            (rm-db-ids map)))
+            map))
 
 (defn sanitize [tx]
   "Removes any keys with nil values."
