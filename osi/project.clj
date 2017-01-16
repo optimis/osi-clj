@@ -14,7 +14,7 @@
                  [com.cognitect/transit-clj "0.8.288"]
                  [compojure "1.5.1"]
                  [cheshire "5.6.3"]
-                 [wharf "0.2.0-SNAPSHOT"]
+                 [prismatic/schema "1.1.3"]
                  [yleisradio/new-reliquary "1.0.0"]
                  [me.raynes/conch "0.8.0"]
                  [wharf "0.2.0-SNAPSHOT"]]
