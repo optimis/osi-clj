@@ -15,11 +15,13 @@
 
 (defn dckr [cmd opts]
   (let [p (apply ll/proc (concat ["docker"] dckr-opts [cmd] opts))]
-    (ll/stream-to-out p :out)))
+    (ll/stream-to-out p :out)
+    (ll/stream-to-out p :err)))
 
 (defn ubr-jar []
   (let [p (ll/proc "lein" "with-profile" (env :name) "uberjar")]
-    (ll/stream-to-out p :out)))
+    (ll/stream-to-out p :out)
+    (ll/stream-to-out p :err)))
 
 (defn envvars-vec [envvars]
   (->> envvars
@@ -43,6 +45,7 @@
     (ubr-jar)
     (dckr "rm" ["-f" app])
     (dckr "rmi" [app-ver])
+    (dckr "rmi" [dtr-str])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])
