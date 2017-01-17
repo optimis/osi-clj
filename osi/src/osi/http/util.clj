@@ -2,7 +2,7 @@
   (:require [clojure.walk :refer [keywordize-keys]]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
-            [wharf.core :refer [transform-keys hyphen->underscore]]
+            [wharf.core :refer [transform-keys underscore->hyphen hyphen->underscore]]
             [ring.util.response :as r]
             [osi.db :as db])
   (:import [java.io ByteArrayOutputStream]))
@@ -16,16 +16,21 @@
 (defn <-transit [obj]
   (trans/read (trans/reader obj :json)))
 
-(defn ->clj-map [str]
-  (-> str json/parse-string keywordize-keys))
-
-(defn rby-compat [obj]
-  (transform-keys (comp hyphen->underscore name)
+(defn- ->rby-compat [obj]
+  (transform-keys #(if (keyword? %)
+                     (-> % name hyphen->underscore)
+                     (str %))
                   (db/rm-ns obj)))
 
-(defn js-compat [obj]
-  "Format data for js & rby"
-  (-> obj rby-compat json/generate-string))
+(defn- <-rby-compat [obj]
+  (transform-keys underscore->hyphen
+                  obj))
+
+(defn <-json [str]
+  (-> str json/parse-string <-rby-compat keywordize-keys))
+
+(defn ->json [obj]
+  (-> obj ->rby-compat json/generate-string))
 
 (defn content-type [resp type]
   (r/content-type resp (str "application/" type)))
