@@ -10,7 +10,7 @@
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [osi.http.util :refer (->transit <-transit ->clj-map header content-type)]
+            [osi.http.util :refer (->transit <-transit <-json header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
@@ -30,7 +30,7 @@
       (content-type type)))
 
 (defn req-body [req]
-  (-> req :body slurp ->clj-map))
+  (-> req :body slurp <-json))
 
 (defn api-call
   [{:keys [status body]}]
@@ -51,6 +51,27 @@
       (if (or (= "localhost" srvr-nme) id)
         (hdlr req)
         (resp "Unauthorized" :status 401)))))
+
+(defmacro w-err-hdlrs [bod]
+  `(try ~bod 
+        (catch clojure.lang.ExceptionInfo exp#
+          (resp "Invalid data" :status 422))
+        (catch Exception exc#
+          (prn exc#)
+          (resp "Post failed" :status 422))))
+
+(defmacro route [name req-xtractr schema & bod]
+  `(defn ~name [req#]
+     (w-err-hdlrs
+      (let [~'obj (->> (~req-xtractr req#)
+                       (parse-req ~schema) (s/validate ~schema))]
+        (resp (->json (do ~@bod)) :status 201)))))
+
+(defmacro post [name schema & bod]
+  `(route ~name (comp <-json slurp :body) ~schema ~@bod))
+
+(defmacro get [name schema & bod]
+  `(route ~name :params ~schema ~@bod))
 
 (defn hdlr [routes]
   (-> routes
