@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [environ "1.1.0"]
-                 [com.datomic/datomic-pro "0.9.5394" :exclusions [joda-time]]
+                 [com.datomic/datomic-pro "0.9.5544" :exclusions [joda-time]]
                  [http-kit "2.2.0"]
                  [ring/ring "1.5.0"]
                  [log4j/log4j "1.2.17"]
