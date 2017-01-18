@@ -27,7 +27,8 @@
 (defn resp
   [body & {:keys [status type headers]
            :or {status 200 type "json" headers {}}}]
-  (-> (r/response body)
+  (-> (r/response (if (= type "json") (->json body)
+                      body))
       (r/status status)
       (header headers)
       (content-type type)))
