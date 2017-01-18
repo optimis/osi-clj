@@ -10,7 +10,10 @@
             [cheshire.core :as json]
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
-            [osi.http.util :refer (->transit <-transit <-json header content-type)]
+            [schema.core :refer [validate]]
+            [osi.http.schema :refer [parse-req]]
+            [osi.http.util :refer (->transit <-transit ->json <-json
+                                             header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
 (def uri (or (System/getenv "OAUTH_URI")
@@ -57,14 +60,13 @@
         (catch clojure.lang.ExceptionInfo exp#
           (resp "Invalid data" :status 422))
         (catch Exception exc#
-          (prn exc#)
           (resp "Post failed" :status 422))))
 
 (defmacro route [name req-xtractr schema & bod]
   `(defn ~name [req#]
      (w-err-hdlrs
       (let [~'obj (->> (~req-xtractr req#)
-                       (parse-req ~schema) (s/validate ~schema))]
+                       (parse-req ~schema) (validate ~schema))]
         (resp (->json (do ~@bod)) :status 201)))))
 
 (defmacro post [name schema & bod]
