@@ -1,6 +1,6 @@
 (ns osi.http.client
   (:require [environ.core :refer (env)]
-            [osi.http.util :refer [->transit <-transit <-json content-type header]]
+            [osi.http.util :refer [->transit <-transit ->json <-json content-type header]]
             [org.httpkit.client :as http]))
 
 (def content-uri (env :content-uri))
