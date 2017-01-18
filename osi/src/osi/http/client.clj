@@ -7,7 +7,8 @@
 
 (defn req
   [body & {:keys [type headers] :or {type "json" headers {}}}]
-  (-> {:body body}
+  (-> {:body (if (= type "json") (<-json body)
+                 body)}
       (content-type type)
       (header headers)))
 
