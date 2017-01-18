@@ -3,6 +3,13 @@
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+                                   :username [":env/dat_usr"]
+                                   :password [":env/dat_passwd"]}
+                 "private" {:sign-releases false
+                            :url "s3p://osi-leiningen/releases/"
+                            :username ":env/aws_access_key"
+                            :passphrase ":env/aws_secret_key"}}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [environ "1.1.0"]
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [joda-time]]
