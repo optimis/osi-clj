@@ -7,7 +7,7 @@
 (def json-matchers {s/Inst (comp c/to-date f/parse)
                     s/Num #(if (string? %)
                              (float (read-string %))
-                             (float %))})
+                             %)})
 
 (defn req-matcher [schema]
   (or (coerce/json-coercion-matcher schema)
