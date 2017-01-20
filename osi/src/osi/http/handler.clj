@@ -4,6 +4,7 @@
             [ring.middleware.reload :refer (wrap-reload)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
+            [clojure.walk :refer [postwalk]]
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
             [cognitect.transit :as trans]
@@ -11,6 +12,7 @@
             [wharf.core :refer [transform-keys hyphen->underscore]]
             [org.httpkit.client :as http]
             [schema.core :refer [validate]]
+            [schema.utils :refer :all]
             [osi.http.schema :refer [parse-req]]
             [osi.http.util :refer (->transit <-transit ->json <-json
                                              header content-type)]
@@ -56,19 +58,28 @@
         (hdlr req)
         (resp "Unauthorized" :status 401)))))
 
+(defn gen-err-map [err]
+  (postwalk (fn [obj]
+              (if (= schema.utils.ValidationError (type obj))
+                (str (validation-error-explain obj))
+                obj))
+            (ex-data err)))
+
 (defmacro w-err-hdlrs [bod]
   `(try ~bod 
-        (catch clojure.lang.ExceptionInfo exp#
-          (resp "Invalid data" :status 422))
+        (catch clojure.lang.ExceptionInfo exc#
+          (resp (gen-err-map exc#) :status 422))
         (catch Exception exc#
-          (resp "Post failed" :status 422))))
+          (prn exc#)                    ; TODO: use log
+          (resp (str exc#) :status 422))))
 
 (defmacro route [name req-xtractr schema & bod]
   `(defn ~name [req#]
      (w-err-hdlrs
-      (let [~'obj (->> (~req-xtractr req#)
-                       (parse-req ~schema) (validate ~schema))]
-        (resp (->json (do ~@bod)) :status 201)))))
+      (let [~'obj (parse-req ~schema (~req-xtractr req#))]
+        (when (error? ~'obj)
+          (throw (ex-info "Schema err" ~'obj)))
+        (resp (do ~@bod) :status 201)))))
 
 (defmacro post [name schema & bod]
   `(route ~name (comp <-json slurp :body) ~schema ~@bod))
