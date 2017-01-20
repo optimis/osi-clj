@@ -5,10 +5,15 @@
 
 (def content-uri (env :content-uri))
 
+(defn- param [req p-map]
+  (update-in req [:query-params] #(merge p-map %)))
+
 (defn req
-  [body & {:keys [type headers] :or {type "json" headers {}}}]
+  [body & {:keys [type headers params]
+           :or {type "json" headers {} params {}}}]
   (-> {:body (if (= type "json") (->json body)
                  body)}
+      (param params)
       (content-type type)
       (header headers)))
 
