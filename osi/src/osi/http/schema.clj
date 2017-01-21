@@ -4,10 +4,14 @@
             [clj-time.format :as f]
             [clj-time.coerce :as c]))
 
-(def json-matchers {s/Inst (comp c/to-date f/parse)
-                    s/Num #(if (string? %)
-                             (float (read-string %))
-                             %)})
+(def json-matchers
+  {s/Inst (comp c/to-date f/parse)
+   s/Num #(if (string? %)
+            (float (read-string %))
+            %)
+   s/Int #(if (string? %)
+            (read-string %)
+            %)})
 
 (defn req-matcher [schema]
   (or (coerce/json-coercion-matcher schema)
