@@ -2,6 +2,7 @@
   (:require [ring.util.response :as r]
             [ring.middleware.params :refer (wrap-params)]
             [ring.middleware.reload :refer (wrap-reload)]
+            [ring.middleware.json :refer (wrap-json-params)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
             [clojure.walk :refer [postwalk]]
@@ -66,7 +67,7 @@
             (ex-data err)))
 
 (defmacro w-err-hdlrs [bod]
-  `(try ~bod 
+  `(try ~bod
         (catch clojure.lang.ExceptionInfo exc#
           (resp (gen-err-map exc#) :status 422))
         (catch Exception exc#
@@ -82,7 +83,7 @@
         (resp (do ~@bod) :status 201)))))
 
 (defmacro post [name schema & bod]
-  `(route ~name (comp <-json slurp :body) ~schema ~@bod))
+  `(route ~name :params ~schema ~@bod))
 
 (defmacro get [name schema & bod]
   `(route ~name :params ~schema ~@bod))
@@ -95,6 +96,7 @@
       (wrap-with-logger)
       (wrap-newrelic-transaction)
       (wrap-transit-params)
+      (wrap-json-params)
       (wrap-params)
       site
       (wrap-reload)))
