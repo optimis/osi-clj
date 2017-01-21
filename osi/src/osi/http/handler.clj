@@ -87,6 +87,9 @@
 (defmacro get [name schema & bod]
   `(route ~name :params ~schema ~@bod))
 
+(defmacro del [name schema & bod]
+  `(route ~name :params ~schema ~@bod))
+
 (defn hdlr [routes]
   (-> routes
       (wrap-with-logger)
