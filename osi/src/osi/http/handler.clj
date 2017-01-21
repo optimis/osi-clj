@@ -1,6 +1,7 @@
 (ns osi.http.handler
   (:require [ring.util.response :as r]
             [ring.middleware.params :refer (wrap-params)]
+            [ring.middleware.keyword-params :refer (wrap-keyword-params)]
             [ring.middleware.reload :refer (wrap-reload)]
             [ring.middleware.json :refer (wrap-json-params)]
             [ring.middleware.transit :refer [wrap-transit-params]]
@@ -96,6 +97,7 @@
       (wrap-with-logger)
       (wrap-newrelic-transaction)
       (wrap-transit-params)
+      (wrap-keyword-params)
       (wrap-json-params)
       (wrap-params)
       site
