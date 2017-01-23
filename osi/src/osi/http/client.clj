@@ -22,7 +22,7 @@
 
 (defn resp-body [resp]
   (if (errs? resp) {}
-      (-> resp :body <-json)))
+      (-> resp :body slurp <-json)))
 
 ;;; TODO: not sure if needed
 (defn parse-errs [resp]
