@@ -6,7 +6,7 @@
             [ring.middleware.json :refer (wrap-json-params)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
-            [clojure.walk :refer [postwalk]]
+            [clojure.walk :refer (postwalk keywordize-keys)]
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
             [cognitect.transit :as trans]
@@ -17,6 +17,7 @@
             [schema.utils :refer :all]
             [osi.http.schema :refer [parse-req]]
             [osi.http.util :refer (->transit <-transit ->json <-json
+                                             <-rby-compat
                                              header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
@@ -36,9 +37,6 @@
       (r/status status)
       (header headers)
       (content-type type)))
-
-(defn req-body [req]
-  (-> req :body slurp <-json))
 
 (defn api-call
   [{:keys [status body]}]

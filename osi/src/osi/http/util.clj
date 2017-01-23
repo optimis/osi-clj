@@ -22,7 +22,7 @@
                      (str %))
                   (db/rm-ns obj)))
 
-(defn- <-rby-compat [obj]
+(defn <-rby-compat [obj]
   (transform-keys underscore->hyphen
                   obj))
 

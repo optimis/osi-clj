@@ -11,8 +11,9 @@
 (defn req
   [body & {:keys [type headers params]
            :or {type "json" headers {} params {}}}]
-  (-> {:body (if (= type "json") (->json body)
-                 body)}
+  (-> (if (not (empty? body))
+        {:body (if (= type "json") (->json body)
+                   body)})
       (param params)
       (content-type type)
       (header headers)))
@@ -22,7 +23,7 @@
 
 (defn resp-body [resp]
   (if (errs? resp) {}
-      (-> resp :body slurp <-json)))
+      (-> resp :body <-json)))
 
 ;;; TODO: not sure if needed
 (defn parse-errs [resp]
