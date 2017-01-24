@@ -3,9 +3,10 @@
             [ring.middleware.params :refer (wrap-params)]
             [ring.middleware.keyword-params :refer (wrap-keyword-params)]
             [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.json :refer (wrap-json-params)]
+            [ring.middleware.json :refer (wrap-json-response wrap-json-params)]
             [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
+            [clojure.tools.logging :refer [info]]
             [clojure.walk :refer (postwalk keywordize-keys)]
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
@@ -17,7 +18,7 @@
             [schema.utils :refer :all]
             [osi.http.schema :refer [parse-req]]
             [osi.http.util :refer (->transit <-transit ->json <-json
-                                             <-rby-compat
+                                             <-rby-compat ->rby-compat
                                              header content-type)]
             [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
 
@@ -32,8 +33,7 @@
 (defn resp
   [body & {:keys [status type headers]
            :or {status 200 type "json" headers {}}}]
-  (-> (r/response (if (= type "json") (->json body)
-                      body))
+  (-> (r/response body)
       (r/status status)
       (header headers)
       (content-type type)))
@@ -90,13 +90,30 @@
 (defmacro del [name schema & bod]
   `(route ~name :params ~schema ~@bod))
 
+(defn rby-resp [resp]
+  (if (coll? (:body resp))
+    (update-in resp [:body] ->rby-compat)
+    resp)) 
+
+(defn wrap-rby-resp [hndlr]
+  (fn [req]
+    (rby-resp (hndlr req))))
+
+(defn rby-params-req [req]
+  (update-in req [:params] <-rby-compat))
+
+(defn wrap-rby-params [hndlr]
+  (fn [req]
+    (hndlr (rby-params-req req))))
+
 (defn hdlr [routes]
   (-> routes
       (wrap-with-logger)
       (wrap-newrelic-transaction)
       (wrap-transit-params)
       (wrap-keyword-params)
-      (wrap-json-params)
+      (wrap-rby-params)
       (wrap-params)
+      (wrap-json-params)
       site
       (wrap-reload)))

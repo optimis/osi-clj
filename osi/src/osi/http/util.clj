@@ -16,7 +16,7 @@
 (defn <-transit [obj]
   (trans/read (trans/reader obj :json)))
 
-(defn- ->rby-compat [obj]
+(defn ->rby-compat [obj]
   (transform-keys #(if (keyword? %)
                      (-> % name hyphen->underscore)
                      (str %))

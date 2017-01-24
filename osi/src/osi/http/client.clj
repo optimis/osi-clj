@@ -11,9 +11,9 @@
 (defn req
   [body & {:keys [type headers params]
            :or {type "json" headers {} params {}}}]
-  (-> (if (not (empty? body))
-        {:body (if (= type "json") (->json body)
-                   body)})
+  (-> (if (empty? body) {}
+          {:body (if (= type "json") (->json body)
+                     body)})
       (param params)
       (content-type type)
       (header headers)))
