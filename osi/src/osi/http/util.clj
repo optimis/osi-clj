@@ -23,7 +23,7 @@
                   (db/rm-ns obj)))
 
 (defn <-rby-compat [obj]
-  (transform-keys underscore->hyphen
+  (transform-keys (comp keyword underscore->hyphen name)
                   obj))
 
 (defn <-json [str]
