@@ -3,3 +3,6 @@ dependencies:
     - lein deps:
         pwd:
           osi
+    - lein test:
+        pwd:
+          osi
