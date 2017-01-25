@@ -3,5 +3,5 @@
             [osi.core :refer :all]))
 
 (deftest a-test
-  (testing "Haha, I pass."
-    (is (= 1 1))))
+  (testing "FIXME, I fail."
+    (is (= 0 1))))
