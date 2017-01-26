@@ -11,6 +11,7 @@
                             :username ":env/aws_access_key"
                             :passphrase ":env/aws_secret_key"}}
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
                  [com.datomic/datomic-pro "0.9.5544" :exclusions [joda-time]]
                  [http-kit "2.2.0"]
