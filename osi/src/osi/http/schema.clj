@@ -14,8 +14,8 @@
             %)})
 
 (defn req-matcher [schema]
-  (or (coerce/json-coercion-matcher schema)
-      (json-matchers schema)))
+  (or (json-matchers schema)
+      (coerce/json-coercion-matcher schema)))
 
 (defn parse-req [schema req]
   ((coerce/coercer schema req-matcher) req))
