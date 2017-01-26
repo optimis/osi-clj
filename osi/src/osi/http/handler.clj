@@ -76,9 +76,9 @@
 (defmacro route [name req-xtractr schema & bod]
   `(defn ~name [req#]
      (w-err-hdlrs
-      (let [~'obj (parse-req ~schema (~req-xtractr req#))]
-        (when (error? ~'obj)
-          (throw (ex-info "Schema err" ~'obj)))
+      (let [~'params (parse-req ~schema (~req-xtractr req#))]
+        (when (error? ~'params)
+          (throw (ex-info "Schema err" ~'params)))
         (resp (do ~@bod) :status 201)))))
 
 (defmacro post [name schema & bod]
