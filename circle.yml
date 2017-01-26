@@ -6,3 +6,12 @@ dependencies:
     - lein test:
         pwd:
           osi
+    - lein deploy private:
+        pwd:
+          osi
+
+deployment:
+  hub:
+    branch: rc
+    commands:
+      - lein deploy private
