@@ -61,7 +61,7 @@
   (doall (for [input-seq inputs]
            (test input-seq))))
 
-(defn def-resp-status-test [app port]
+(defn with-app [app port]
   (defn resp-status-test [http-fn uri reqs ops]         ; reqs as in required inputs
     (w-srvr app port
      (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
