@@ -74,9 +74,9 @@
           (resp (str exc#) :status 422))))
 
 (defmacro route [name req-xtractr schema & bod]
-  `(defn ~name [req#]
+  `(defn ~name [~'req]
      (w-err-hdlrs
-      (let [~'params (parse-req ~schema (~req-xtractr req#))]
+      (let [~'params (parse-req ~schema (~req-xtractr ~'req))]
         (when (error? ~'params)
           (throw (ex-info "Schema err" ~'params)))
         (resp (do ~@bod) :status 201)))))
@@ -106,6 +106,7 @@
   (fn [req]
     (hndlr (rby-params-req req))))
 
+;; TODO: add wrap session
 (defn hdlr [routes]
   (-> routes
       (wrap-with-logger)
