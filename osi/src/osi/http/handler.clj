@@ -116,5 +116,7 @@
       (wrap-rby-params)
       (wrap-params)
       (wrap-json-params)
+      (wrap-rby-resp)
+      (wrap-json-response)
       site
       (wrap-reload)))
