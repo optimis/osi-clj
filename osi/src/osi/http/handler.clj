@@ -81,14 +81,14 @@
           (throw (ex-info "Schema err" ~'params)))
         (resp (do ~@bod) :status ~status)))))
 
-(defmacro post [name schema 201 & bod]
-  `(route ~name :params ~schema ~@bod))
+(defmacro post [name schema & bod]
+  `(route ~name :params ~schema 201 ~@bod))
 
-(defmacro get [name schema 200 & bod]
-  `(route ~name :params ~schema ~@bod))
+(defmacro get [name schema & bod]
+  `(route ~name :params ~schema 200 ~@bod))
 
-(defmacro del [name schema 200 & bod]
-  `(route ~name :params ~schema ~@bod))
+(defmacro del [name schema & bod]
+  `(route ~name :params ~schema 200 ~@bod))
 
 (defn rby-resp [resp]
   (if (coll? (:body resp))

@@ -40,6 +40,8 @@
   (http/delete (str (env :uri) uri)
                (req (into {} req-body))))
 
+(def status {get 200 post 201 del 200})
+
 (defn- most-inputs [inputs]
   (disj inputs (first inputs)))
 
@@ -52,7 +54,7 @@
     (is (= status (:status @(http-fn uri body))))))
 
 (defn- req-passes? [http-fn uri]
-  (req-test http-fn uri 201))
+  (req-test http-fn uri (status http-fn)))
 
 (defn- req-fails? [http-fn uri]
   (req-test http-fn uri 422))
