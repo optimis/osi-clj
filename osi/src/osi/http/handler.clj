@@ -73,21 +73,21 @@
           (prn exc#)                    ; TODO: use log
           (resp (str exc#) :status 422))))
 
-(defmacro route [name req-xtractr schema & bod]
+(defmacro route [name req-xtractr schema status & bod]
   `(defn ~name [~'req]
      (w-err-hdlrs
       (let [~'params (parse-req ~schema (~req-xtractr ~'req))]
         (when (error? ~'params)
           (throw (ex-info "Schema err" ~'params)))
-        (resp (do ~@bod) :status 201)))))
+        (resp (do ~@bod) :status ~status)))))
 
-(defmacro post [name schema & bod]
+(defmacro post [name schema 201 & bod]
   `(route ~name :params ~schema ~@bod))
 
-(defmacro get [name schema & bod]
+(defmacro get [name schema 200 & bod]
   `(route ~name :params ~schema ~@bod))
 
-(defmacro del [name schema & bod]
+(defmacro del [name schema 200 & bod]
   `(route ~name :params ~schema ~@bod))
 
 (defn rby-resp [resp]
