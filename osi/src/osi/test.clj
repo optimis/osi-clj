@@ -64,11 +64,14 @@
            (test input-seq))))
 
 (defn with-app [app port]
-  (defn resp-status-test [http-fn uri reqs ops]         ; reqs as in required inputs
-    (w-srvr app port
-     (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
-       (when (> 1 (count bad-inputs))
-         (test-inputs bad-inputs
-                      (req-fails? http-fn uri))))
-     (test-inputs (merge-inputs reqs (set/subsets ops))
-                  (req-passes? http-fn uri)))))
+  (defn resp-status-test
+    ([http-fn uri] (resp-status-test http-fn uri #{}))
+    ([http-fn uri reqs] (resp-status-test http-fn uri reqs #{}))
+    ([http-fn uri reqs ops]           ; reqs: required inputs, ops: optional inputs
+     (w-srvr app port
+             (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
+               (when (> 1 (count bad-inputs))
+                 (test-inputs bad-inputs
+                              (req-fails? http-fn uri))))
+             (test-inputs (merge-inputs reqs (set/subsets ops))
+                          (req-passes? http-fn uri))))))
