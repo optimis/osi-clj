@@ -51,7 +51,9 @@
 
 (defn- req-test [http-fn uri status]
   (fn [body]
-    (is (= status (:status @(http-fn uri body))))))
+    (let [req @(http-fn uri body)]
+      (is (= status (:status req)))
+      req)))
 
 (defn- req-passes? [http-fn uri]
   (req-test http-fn uri (status http-fn)))
