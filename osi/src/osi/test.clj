@@ -14,8 +14,9 @@
 
 (defmacro w-srvr [app port & body]
   `(let [stop-srvr# (run-server ~app {:port ~port})]
-     ~@body
-     (stop-srvr#)))
+     (let [res# (do ~@body)]
+       (stop-srvr#)
+       res#)))
 
 (defn pull-all [kwd]
   (d/q `[:find ?t ?a ?tx
@@ -49,16 +50,16 @@
   (map #(into () (union (into #{} %) i1))
        i2s))
 
-(defn- req-test [http-fn uri status]
+(defn req-test [http-fn uri status]
   (fn [body]
     (let [req @(http-fn uri body)]
       (is (= status (:status req)))
       req)))
 
-(defn- req-passes? [http-fn uri]
+(defn req-passes? [http-fn uri]
   (req-test http-fn uri (status http-fn)))
 
-(defn- req-fails? [http-fn uri]
+(defn req-fails? [http-fn uri]
   (req-test http-fn uri 422))
 
 (defn- test-inputs [inputs test]
