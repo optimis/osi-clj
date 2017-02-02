@@ -1,5 +1,5 @@
 machine:
-  env:
+  environment:
     LEIN_SNAPSHOTS_IN_RELEASE: true
 
 dependencies:
