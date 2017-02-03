@@ -1,6 +1,7 @@
 (ns osi.http.schema
   (:require [schema.core :as s]
             [schema.coerce :as coerce]
+            [osi.db :refer (sanitize)]
             [clj-time.format :as f]
             [clj-time.coerce :as c]))
 
@@ -18,4 +19,5 @@
       (coerce/json-coercion-matcher schema)))
 
 (defn parse-req [schema req]
-  ((coerce/coercer schema req-matcher) req))
+  ((coerce/coercer schema req-matcher)
+   (sanitize req)))
