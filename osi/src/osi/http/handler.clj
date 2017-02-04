@@ -73,13 +73,17 @@
           (prn exc#)                    ; TODO: use log
           (resp (str exc#) :status 422))))
 
+(defmacro w-parsed-req [req req-xtractr schema & bod]
+  `(w-err-hdlrs
+    (let [~'params (parse-req ~schema (~req-xtractr ~req))]
+      (when (error? ~'params)
+        (throw (ex-info "Schema err" ~'params)))
+      (do ~@bod))))
+
 (defmacro route [name req-xtractr schema status & bod]
   `(defn ~name [~'req]
-     (w-err-hdlrs
-      (let [~'params (parse-req ~schema (~req-xtractr ~'req))]
-        (when (error? ~'params)
-          (throw (ex-info "Schema err" ~'params)))
-        (resp (do ~@bod) :status ~status)))))
+     (w-parsed-req ~'req ~req-xtractr ~schema
+      (resp (do ~@bod) :status ~status))))
 
 (defmacro post [name schema & bod]
   `(route ~name :params ~schema 201 ~@bod))
@@ -90,10 +94,17 @@
 (defmacro del [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
+(defmacro proxy [name schema & bod]
+  `(defn ~name [~'req]
+     (w-parsed-req ~'req :params ~schema
+      (let [{:keys [~'body ~'status ~'headers]} @(do ~@bod)]
+        (resp ~'body :status ~'status
+              :type (:content-type ~'headers))))))
+
 (defn rby-resp [resp]
   (if (coll? (:body resp))
     (update-in resp [:body] ->rby-compat)
-    resp)) 
+    resp))
 
 (defn wrap-rby-resp [hndlr]
   (fn [req]
