@@ -51,8 +51,9 @@
        i2s))
 
 (defn req-test [http-fn uri status]
-  (fn [body]
-    (let [req @(http-fn uri body)]
+  (fn [& body]
+    (let [req @(http-fn uri (if (nil? body) {}
+                                (first body)))]
       (is (= status (:status req)))
       req)))
 
@@ -67,14 +68,17 @@
            (test input-seq))))
 
 (defn with-app [app port]
-  (defn resp-status-test
-    ([http-fn uri] (resp-status-test http-fn uri #{}))
-    ([http-fn uri reqs] (resp-status-test http-fn uri reqs #{}))
-    ([http-fn uri reqs ops]           ; reqs: required inputs, ops: optional inputs
-     (w-srvr app port
-             (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
-               (when (> 1 (count bad-inputs))
-                 (test-inputs bad-inputs
-                              (req-fails? http-fn uri))))
-             (test-inputs (merge-inputs reqs (set/subsets ops))
-                          (req-passes? http-fn uri))))))
+  (defmacro http-test {:style/indent :defn} [name & body]
+    `(deftest ~name []
+       (w-srvr (~app) ~port ~@body))))
+
+(defn resp-status-test
+  ([http-fn uri] (resp-status-test http-fn uri #{}))
+  ([http-fn uri reqs] (resp-status-test http-fn uri reqs #{}))
+  ([http-fn uri reqs ops]           ; reqs: required inputs, ops: optional inputs
+   (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
+     (when (> 1 (count bad-inputs))
+         (test-inputs bad-inputs
+                      (req-fails? http-fn uri))))
+   (test-inputs (merge-inputs reqs (set/subsets ops))
+                (req-passes? http-fn uri))))
