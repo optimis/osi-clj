@@ -69,8 +69,27 @@
 
 (defn with-app [app port]
   (defmacro http-test {:style/indent :defn} [name & body]
-    `(deftest ~name []
-       (w-srvr (~app) ~port ~@body))))
+    (if app
+      `(deftest ~name []
+         (w-srvr (~app) ~port ~@body))
+      `(deftest ~name []
+         ~@body))))
+
+;;; TODO: name change + new abstraction
+;;; TODO: assuming we are doing a post
+(defn api-status-test
+  ([api-fn] (api-status-test api-fn #{}))
+  ([api-fn reqs] (api-status-test api-fn reqs #{}))
+  ([api-fn reqs ops]
+   (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
+     (test-inputs bad-inputs
+                  (fn [item]
+                    (is (= 422
+                           (:status @(api-fn (into {} item))))))))
+   (test-inputs (merge-inputs reqs (set/subsets ops))
+                (fn [item]
+                  (is (= (status post)
+                         (:status @(api-fn (into {} item)))))))))
 
 (defn resp-status-test
   ([http-fn uri] (resp-status-test http-fn uri #{}))
