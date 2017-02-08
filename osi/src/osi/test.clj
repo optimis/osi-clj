@@ -31,37 +31,38 @@
 
 (defn get [uri qry]
   (http/get (str (env :uri) uri)
-            (req {} :params (into {} qry))))
+            (req {} :params qry)))
 
-(defn post [uri req-body]
+(defn post [uri body]
   (http/post (str (env :uri) uri)
-             (req (into {} req-body))))
+             (req body)))
 
-(defn del [uri req-body]
+(defn del [uri body]
   (http/delete (str (env :uri) uri)
-               (req (into {} req-body))))
+               (req body)))
 
 (def status {get 200 post 201 del 200})
 
-(defn- most-inputs [inputs]
+(defn- most [inputs]
   (disj inputs (first inputs)))
 
 (defn- merge-inputs [i1 i2s]
   (map #(into () (union (into #{} %) i1))
        i2s))
 
-(defn req-test [http-fn uri status]
+(defn req-test [http-fn status]
   (fn [& body]
-    (let [req @(http-fn uri (if (nil? body) {}
-                                (first body)))]
+    (let [req @(http-fn
+                (if (nil? body) {}
+                    (into {} (first body))))]
       (is (= status (:status req)))
       req)))
 
-(defn req-passes? [http-fn uri]
-  (req-test http-fn uri (status http-fn)))
+(defn req-passes? [http-type http-fn]
+  (req-test http-fn (status http-type)))
 
-(defn req-fails? [http-fn uri]
-  (req-test http-fn uri 422))
+(defn req-fails? [http-type http-fn]
+  (req-test http-fn 422))
 
 (defn- test-inputs [inputs test]
   (doall (for [input-seq inputs]
@@ -75,29 +76,19 @@
       `(deftest ~name []
          ~@body))))
 
-;;; TODO: name change + new abstraction
-;;; TODO: assuming we are doing a post
-(defn api-status-test
-  ([api-fn] (api-status-test api-fn #{}))
-  ([api-fn reqs] (api-status-test api-fn reqs #{}))
-  ([api-fn reqs ops]
-   (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
-     (test-inputs bad-inputs
-                  (fn [item]
-                    (is (= 422
-                           (:status @(api-fn (into {} item))))))))
-   (test-inputs (merge-inputs reqs (set/subsets ops))
-                (fn [item]
-                  (is (= (status post)
-                         (:status @(api-fn (into {} item)))))))))
-
 (defn resp-status-test
-  ([http-fn uri] (resp-status-test http-fn uri #{}))
-  ([http-fn uri reqs] (resp-status-test http-fn uri reqs #{}))
-  ([http-fn uri reqs ops]           ; reqs: required inputs, ops: optional inputs
-   (let [bad-inputs (set/subsets (union ops (most-inputs reqs)))]
+  ([http-type fn] (resp-status-test http-type fn #{}))
+  ([http-type fn req] (resp-status-test http-type fn req #{}))
+  ([http-type fn reqs ops]
+   (let [bad-inputs (set/subsets (union ops (most reqs)))]
      (when (> 1 (count bad-inputs))
-         (test-inputs bad-inputs
-                      (req-fails? http-fn uri))))
-   (test-inputs (merge-inputs reqs (set/subsets ops))
-                (req-passes? http-fn uri))))
+       (test-inputs bad-inputs
+                    (req-fails? http-type fn)))
+     (test-inputs (merge-inputs reqs (set/subsets ops))
+                  (req-passes? http-type fn)))))
+
+(defn hdlr-tst
+  ([http-fn uri] (hdlr-tst http-fn uri #{}))
+  ([http-fn uri reqs] (hdlr-tst http-fn uri reqs #{}))
+  ([http-fn uri reqs ops]
+   (resp-status-test http-fn #(http-fn uri %) reqs ops)))
