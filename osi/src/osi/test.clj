@@ -72,23 +72,27 @@
   (defmacro http-test {:style/indent :defn} [name & body]
     (if app
       `(deftest ~name []
-         (w-srvr (~app) ~port ~@body))
+         (w-srvr (~app) ~port
+                 (try ~@body
+                      (catch Exception exc#
+                        (prn exc#)))))
       `(deftest ~name []
          ~@body))))
 
 (defn resp-status-test
-  ([http-type fn] (resp-status-test http-type fn #{}))
-  ([http-type fn req] (resp-status-test http-type fn req #{}))
+  ([http-type fn] (resp-status-test http-type fn {}))
+  ([http-type fn req] (resp-status-test http-type fn req {}))
   ([http-type fn reqs ops]
-   (let [bad-inputs (set/subsets (union ops (most reqs)))]
-     (when (> 1 (count bad-inputs))
-       (test-inputs bad-inputs
-                    (req-fails? http-type fn)))
-     (test-inputs (merge-inputs reqs (set/subsets ops))
-                  (req-passes? http-type fn)))))
+   (let [[reqs ops] (map #(into #{} %) [reqs ops])]
+     (let [bad-inputs (set/subsets (union ops (most reqs)))]
+       (when (> 1 (count bad-inputs))
+         (test-inputs bad-inputs
+                      (req-fails? http-type fn)))
+       (test-inputs (merge-inputs reqs (set/subsets ops))
+                    (req-passes? http-type fn))))))
 
 (defn hdlr-tst
-  ([http-fn uri] (hdlr-tst http-fn uri #{}))
-  ([http-fn uri reqs] (hdlr-tst http-fn uri reqs #{}))
+  ([http-fn uri] (hdlr-tst http-fn uri {}))
+  ([http-fn uri reqs] (hdlr-tst http-fn uri reqs {}))
   ([http-fn uri reqs ops]
    (resp-status-test http-fn #(http-fn uri %) reqs ops)))
