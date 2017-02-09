@@ -1,4 +1,4 @@
-(defproject osi-clj "2.0.0"
+(defproject osi-clj "3.0.0"
   :description "osi clj library"
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
