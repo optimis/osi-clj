@@ -94,6 +94,9 @@
 (defmacro del [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
+(defmacro patch [name schema & bod]
+  `(route ~name :params ~schema 201 ~@bod))
+
 (defmacro proxy [name schema & bod]
   `(defn ~name [~'req]
      (w-parsed-req ~'req :params ~schema

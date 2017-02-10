@@ -41,7 +41,11 @@
   (http/delete (str (env :uri) uri)
                (req body)))
 
-(def status {get 200 post 201 del 200})
+(defn patch [uri body]
+  (http/patch (str (env :uri) uri)
+             (req body)))
+
+(def status {get 200 post 201 del 200 patch 200})
 
 (defn- most [inputs]
   (disj inputs (first inputs)))
