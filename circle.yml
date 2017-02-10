@@ -2,20 +2,16 @@ machine:
   environment:
     LEIN_SNAPSHOTS_IN_RELEASE: true
 
-dependencies:
+general:
+  build_dir: osi
+
+test:
   override:
-    - lein deps:
-        pwd:
-          osi
-    - lein test:
-        pwd:
-          osi
-    - lein deploy private:
-        pwd:
-          osi
+    - lein test
+    - lein cloverage
 
 deployment:
-  hub:
-    branch: rc
+  rc:
+    branch: [rc, master]
     commands:
       - lein deploy private
