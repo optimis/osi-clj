@@ -28,6 +28,7 @@
                  [me.raynes/conch "0.8.0"]
                  [wharf "0.2.0-SNAPSHOT"]]
   :plugins [[lein-ancient "0.6.10"]
+            [lein-cloverage "1.0.9"]
             [lein-environ "1.1.0"]
             [s3-wagon-private "1.2.0"]
             [com.carouselapps/jar-copier "0.2.0"]]
