@@ -15,9 +15,9 @@
 
 (defn dckr [cmd opts]
   (let [proc (apply ll/proc (concat ["docker"] dckr-opts [cmd] opts))
-        exit-code (ll/exit-code p)]
-    (ll/stream-to-out p :out)
-    (ll/stream-to-out p :err)
+        exit-code (ll/exit-code proc)]
+    (ll/stream-to-out proc :out)
+    (ll/stream-to-out proc :err)
     (if (not (= 0 exit-code))
       (throw (ex-info (str "dckr build failed: " cmd)
                       {:err exit-code}))
@@ -25,9 +25,9 @@
 
 (defn ubr-jar []
   (let [proc (ll/proc "lein" "with-profile" (env :name) "uberjar")
-        exit-code (ll/exit-code p)]
-    (ll/stream-to-out p :out)
-    (ll/stream-to-out p :err)
+        exit-code (ll/exit-code proc)]
+    (ll/stream-to-out proc :out)
+    (ll/stream-to-out proc :err)
     (if (not (= 0 exit-code))
       (throw (ex-info (str "dckr ubr-jar failed:")
                       {:err exit-code}))
