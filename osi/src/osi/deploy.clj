@@ -14,14 +14,22 @@
                 (str "--tlskey=" dckr-crt-path "key.pem")])
 
 (defn dckr [cmd opts]
-  (let [p (apply ll/proc (concat ["docker"] dckr-opts [cmd] opts))]
+  (let [p (apply ll/proc (concat ["docker"] dckr-opts [cmd] opts))
+        exit-code (ll/exit-code p)]
     (ll/stream-to-out p :out)
-    (ll/stream-to-out p :err)))
+    (ll/stream-to-out p :err)
+    (when (not (= 0 exit-code))
+      (throw (ex-info (str "dckr build failed: " cmd)
+                      {:err exit-code})))))
 
 (defn ubr-jar []
-  (let [p (ll/proc "lein" "with-profile" (env :name) "uberjar")]
+  (let [p (ll/proc "lein" "with-profile" (env :name) "uberjar")
+        exit-code (ll/exit-code p)]
     (ll/stream-to-out p :out)
-    (ll/stream-to-out p :err)))
+    (ll/stream-to-out p :err)
+    (when (not (= 0 exit-code))
+      (throw (ex-info (str "dckr ubr-jar failed:")
+                      {:err exit-code})))))
 
 (defn envvars-vec [envvars]
   (->> envvars
@@ -43,11 +51,11 @@
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
     (ubr-jar)
-    (dckr "rm" ["-f" app])
-    (dckr "rmi" [app-ver])
-    (dckr "rmi" [dtr-str])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])
+    (dckr "rm" ["-f" app])
+    (dckr "rmi" [app-ver])
+    (dckr "rmi" [dtr-str])
     (dckr "pull" [dtr-str])
     (dckr "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
