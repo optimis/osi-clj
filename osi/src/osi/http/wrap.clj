@@ -1,6 +1,5 @@
 (ns osi.http.wrap
-  (:require [osi.http.handler :refer [req-body]]
-            [clojure.instant :as inst])
+  (:require [clojure.instant :as inst])
   (:import [org.httpkit.BytesInputStream]))
 
 (defn- cnvtr-hdlr [hdlr keys cnvtr]
@@ -10,7 +9,7 @@
                                     (if (contains? p-map key)
                                       (update p-map key cnvtr)
                                       p-map))
-                                  (select-keys (req-body req) keys)
+                                  (select-keys (:body req) keys)
                                   keys))]
       (.reset (:body req*))
       (hdlr req*))))
