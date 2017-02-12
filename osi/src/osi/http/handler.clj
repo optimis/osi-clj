@@ -122,12 +122,12 @@
 ;; TODO: add wrap session
 (defn hdlr [routes]
   (-> routes
-      site
       (wrap-with-logger)
       (wrap-newrelic-transaction)
+      (wrap-rby-params)
+      (wrap-rby-resp)
       (wrap-restful-format
        :formats [:json
                  :transit-json])
-      (wrap-rby-params)
-      (wrap-rby-resp)
+      site
       (wrap-reload)))
