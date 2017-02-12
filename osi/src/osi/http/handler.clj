@@ -2,9 +2,8 @@
   (:require [ring.util.response :as r]
             [ring.middleware.params :refer (wrap-params)]
             [ring.middleware.keyword-params :refer (wrap-keyword-params)]
+            [ring.middleware.format :refer (wrap-restful-format)]
             [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.json :refer (wrap-json-response wrap-json-params)]
-            [ring.middleware.transit :refer [wrap-transit-params]]
             [ring.logger :refer (wrap-with-logger)]
             [clojure.tools.logging :refer [info]]
             [clojure.walk :refer (postwalk keywordize-keys)]
@@ -123,14 +122,12 @@
 ;; TODO: add wrap session
 (defn hdlr [routes]
   (-> routes
+      site
       (wrap-with-logger)
       (wrap-newrelic-transaction)
-      (wrap-transit-params)
-      (wrap-keyword-params)
+      (wrap-restful-format
+       :formats [:json
+                 :transit-json])
       (wrap-rby-params)
-      (wrap-params)
-      (wrap-json-params)
       (wrap-rby-resp)
-      (wrap-json-response)
-      site
       (wrap-reload)))
