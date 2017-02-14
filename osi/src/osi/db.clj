@@ -1,7 +1,8 @@
 (ns osi.db
   (:require [clojure.walk :refer (postwalk)]
             [environ.core :refer (env)]
-            [datomic.api :as d]))
+            [datomic.api :as d]
+            [wharf.core :refer [transform-keys]]))
 
 (defn db-uri
   ([] (db-uri (env :datomic-db)))
@@ -14,8 +15,10 @@
          ip (env :datomic-storage-ip)]
      (format uri db ip))))
 
-(defn db-conn [db-name]
-  (fn [] (d/connect (db-uri db-name))))
+(defn db-conn
+  ([] (fn [] (d/connect (db-uri))))
+  ([db-name]
+   (fn [] (d/connect (db-uri db-name)))))
 
 (defn db [] (d/db (d/connect (db-uri))))
 
@@ -60,3 +63,20 @@
      :unit/symbol (:symbol unit)
      :unit/system (:system unit)
      :unit/quantity (quantity-tx quantity)}))
+
+(defn add-ns [map ns]
+  (transform-keys #(keyword (str (name ns) "/" (name %)))
+                  map))
+
+(defn -tx [ent]
+  (let [tx @(d/transact ((db-conn))
+                        [(assoc ent :db/id "tx")])]
+    (d/pull (db) '[*] ((:tempids tx) "tx"))))
+
+(defn tx
+  ([ent] (-tx ent))
+  ([ent attrs]
+   (if (keyword? ent)
+     (-tx (add-ns attrs ent))
+     (let [ns (namespace (ffirst (dissoc ent :db/id)))]
+       (-tx (merge ent (add-ns attrs ns)))))))
