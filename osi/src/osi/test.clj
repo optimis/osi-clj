@@ -13,10 +13,12 @@
             [clj-time.coerce :as c]))
 
 (defmacro w-srvr [app port & body]
-  `(let [stop-srvr# (run-server ~app {:port ~port})]
-     (let [res# (do ~@body)]
-       (stop-srvr#)
-       res#)))
+  `(with-redefs [gatekeeper.core/authorize
+                 (fn [roles# callback#] callback#)]
+     (let [stop-srvr# (run-server ~app {:port ~port})]
+                  (let [res# (do ~@body)]
+                    (stop-srvr#)
+                    res#))))
 
 (defn pull-all [kwd]
   (d/q `[:find ?t ?a ?tx
@@ -24,10 +26,19 @@
        (db)))
 
 (defn rand-datum [kwd]
-  (ffirst (pull-all kwd)))
+  (defn- resolve-dat [dat]
+    (if (integer? dat)
+      (let [ent (d/pull (db) '[*] dat)]
+        (if (> 1 (count ent)) dat
+            (resolve-dat ent)))
+      dat))
+  (resolve-dat (ffirst (pull-all kwd))))
 
 (defn rand-ref [kwd]
   (-> (pull-all kwd) first second))
+
+(defn rand-ent [kwd]
+  (d/pull (db) '[*] (rand-ref kwd)))
 
 (defn get [uri qry]
   (http/get (str (env :uri) uri)
