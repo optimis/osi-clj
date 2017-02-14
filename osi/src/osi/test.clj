@@ -13,12 +13,10 @@
             [clj-time.coerce :as c]))
 
 (defmacro w-srvr [app port & body]
-  `(with-redefs [gatekeeper.core/authorize
-                 (fn [roles# callback#] callback#)]
-     (let [stop-srvr# (run-server ~app {:port ~port})]
-                  (let [res# (do ~@body)]
-                    (stop-srvr#)
-                    res#))))
+  `(let [stop-srvr# (run-server ~app {:port ~port})]
+     (let [res# (do ~@body)]
+       (stop-srvr#)
+       res#)))
 
 (defn pull-all [kwd]
   (d/q `[:find ?t ?a ?tx
@@ -84,7 +82,8 @@
            (test input-seq))))
 
 (defn with-app [app port]
-  (defmacro http-test {:style/indent :defn} [name & body]
+  (defmacro http-test {:style/indent :defn}
+    [name & body]
     (if app
       `(deftest ~name []
          (w-srvr (~app) ~port
