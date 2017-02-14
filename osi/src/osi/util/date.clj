@@ -4,7 +4,7 @@
             [clj-time.periodic :as tp]
             [clj-time.format :as f]))
 
-(defn- <-str [t]
+(defn- ->date [t]
   (f/parse (f/formatters :date) t))
 
 (defn- within? [start end t]
@@ -21,6 +21,11 @@
        (+ 1 idx)))
    range))
 
+(defn wk-idx-in-range [itm date-key range]
+  (first
+   (filter (comp not nil?)
+           (wk-idxs-in-range itm date-key range))))
+
 (defn- assoc-wk [itm date-key range]
   (assoc itm :wk
          (wk-idx-in-range itm date-key range)))
@@ -29,13 +34,8 @@
   (let [inf-range (tp/periodic-seq start step)]
     (take-while #(within? start end %) inf-range)))
 
-(defn wk-idx-in-range [itm date-key range]
-  (first
-   (filter (comp not nil?)
-           (wk-idxs-in-range itm date-key range))))
-
 (defn grp-by-wk [col date-key strt end]
-  (let [range (time-range (<-str strt) (<-str end)
+  (let [range (time-range (->date strt) (->date end)
                           (t/weeks 1))]
     (->> (map #(assoc-wk % date-key range) col)
          (group-by :wk))))
