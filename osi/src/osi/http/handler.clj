@@ -84,16 +84,16 @@
      (w-parsed-req ~'req ~req-xtractr ~schema
       (resp (do ~@bod) :status ~status))))
 
-(defmacro post [name schema & bod]
+(defmacro post {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 201 ~@bod))
 
-(defmacro get [name schema & bod]
+(defmacro get {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
-(defmacro del [name schema & bod]
+(defmacro del {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
-(defmacro patch [name schema & bod]
+(defmacro patch {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 201 ~@bod))
 
 (defmacro proxy [name schema & bod]
