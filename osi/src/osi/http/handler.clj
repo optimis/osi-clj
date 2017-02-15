@@ -94,7 +94,7 @@
   `(route ~name :params ~schema 200 ~@bod))
 
 (defmacro patch {:style/indent :defn} [name schema & bod]
-  `(route ~name :params ~schema 201 ~@bod))
+  `(route ~name :params ~schema 200 ~@bod))
 
 (defmacro proxy [name schema & bod]
   `(defn ~name [~'req]
