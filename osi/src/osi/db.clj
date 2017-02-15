@@ -64,9 +64,11 @@
      :unit/system (:system unit)
      :unit/quantity (quantity-tx quantity)}))
 
-(defn add-ns [map ns]
-  (transform-keys #(keyword (str (name ns) "/" (name %)))
-                  map))
+(defn add-ns [hash-map ns]
+  (into {}
+        (map (fn [[k v]]
+               {(keyword (str (name ns) "/" (name k))) v})
+             hash-map)))
 
 (defn -tx [ent]
   (let [tx @(d/transact ((db-conn))
