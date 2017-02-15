@@ -74,9 +74,15 @@
     (d/pull (db) '[*] ((:tempids tx) "tx"))))
 
 (defn tx
-  ([ent] (-tx ent))
+  ([ent] (if (vector? ent)
+           (do @(d/transact ((db-conn)) [ent])
+               (d/pull (db) '[*] (second ent)))
+           (-tx ent)))
   ([ent attrs]
    (if (keyword? ent)
      (-tx (add-ns attrs ent))
      (let [ns (namespace (ffirst (dissoc ent :db/id)))]
        (-tx (merge ent (add-ns attrs ns)))))))
+
+(defn pull [exp]
+ (d/pull (db) '[*] exp))
