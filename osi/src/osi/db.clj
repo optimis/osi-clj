@@ -88,3 +88,6 @@
 
 (defn pull [exp]
  (d/pull (db) '[*] exp))
+
+(defn ref [exp]
+  (-> exp pull :db/id))
