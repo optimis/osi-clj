@@ -13,25 +13,21 @@
                 (str "--tlscert=" dckr-crt-path "cert.pem")
                 (str "--tlskey=" dckr-crt-path "key.pem")])
 
-(defn dckr [cmd opts]
-  (let [proc (apply ll/proc (concat ["docker"] dckr-opts [cmd] opts))
+(defn sh-cmd [cmd]
+  (let [proc (apply ll/proc cmd)
         exit-code (ll/exit-code proc)]
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
     (if (not (= 0 exit-code))
-      (throw (ex-info (str "dckr build failed: " cmd)
+      (throw (ex-info (str "cmd failed: " cmd)
                       {:err exit-code}))
       proc)))
 
+(defn dckr [cmd opts]
+  (sh-cmd (concat ["docker"] dckr-opts [cmd] opts)))
+
 (defn ubr-jar []
-  (let [proc (ll/proc "lein" "with-profile" (env :name) "uberjar")
-        exit-code (ll/exit-code proc)]
-    (ll/stream-to-out proc :out)
-    (ll/stream-to-out proc :err)
-    (if (not (= 0 exit-code))
-      (throw (ex-info (str "dckr ubr-jar failed:")
-                      {:err exit-code}))
-      proc)))
+  (sh-cmd ["lein" "with-profile" (env :name) "uberjar"]))
 
 (defn envvars-vec [envvars]
   (->> envvars
