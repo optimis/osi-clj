@@ -49,6 +49,7 @@
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
     (ubr-jar)
+    (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])
