@@ -86,17 +86,20 @@
   (doall (for [input-seq inputs]
            (test input-seq))))
 
-(defn with-app [app port]
-  (defmacro http-test {:style/indent :defn}
-    [name & body]
-    (if app
-      `(deftest ~name []
-         (w-srvr (~app) ~port
-                 (try ~@body
-                      (catch Exception exc#
-                        (prn exc#)))))
-      `(deftest ~name []
-         ~@body))))
+(defn with-app
+  ([app port] (with-app app port '[]))
+  ([app port redefs]
+   (defmacro http-test {:style/indent :defn}
+     [name & body]
+     (if app
+       `(deftest ~name []
+          (with-redefs ~redefs
+            (w-srvr (~app) ~port
+                    (try ~@body
+                         (catch Exception exc#
+                           (prn exc#))))))
+       `(deftest ~name []
+          ~@body)))))
 
 (defn resp-status-test
   ([http-type fn] (resp-status-test http-type fn {}))
