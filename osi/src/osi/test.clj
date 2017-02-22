@@ -38,9 +38,14 @@
 (defn rand-ent [kwd]
   (d/pull (db) '[*] (rand-ref kwd)))
 
+;;; TODO: generate these
 (defn get [uri qry]
   (http/get (str (env :uri) uri)
             (req {} :params qry)))
+
+(defn put [uri body]
+  (http/put (str (env :uri) uri)
+            (req body)))
 
 (defn post [uri body]
   (http/post (str (env :uri) uri)
@@ -54,7 +59,7 @@
   (http/patch (str (env :uri) uri)
              (req body)))
 
-(def status {get 200 post 201 del 200 patch 200})
+(def status {get 200 put 200 post 201 del 200 patch 200})
 
 (defn- most [inputs]
   (disj inputs (first inputs)))

@@ -84,10 +84,14 @@
      (w-parsed-req ~'req ~req-xtractr ~schema
       (resp (do ~@bod) :status ~status))))
 
+;;; TODO: generate these
 (defmacro post {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 201 ~@bod))
 
 (defmacro get {:style/indent :defn} [name schema & bod]
+  `(route ~name :params ~schema 200 ~@bod))
+
+(defmacro put {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
 (defmacro del {:style/indent :defn} [name schema & bod]
@@ -96,7 +100,7 @@
 (defmacro patch {:style/indent :defn} [name schema & bod]
   `(route ~name :params ~schema 200 ~@bod))
 
-(defmacro proxy [name schema & bod]
+(defmacro proxy [route name schema & bod]
   `(defn ~name [~'req]
      (w-parsed-req ~'req :params ~schema
       (let [{:keys [~'body ~'status ~'headers]} @(do ~@bod)]
