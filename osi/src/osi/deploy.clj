@@ -19,7 +19,7 @@
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
     (if (not (= 0 exit-code))
-      (throw (ex-info (str "cmd failed: " cmd)
+      (throw (ex-info (str "cmd failed: " (pr-str cmd))
                       {:err exit-code}))
       proc)))
 
