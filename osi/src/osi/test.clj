@@ -39,9 +39,11 @@
   (d/pull (db) '[*] (rand-ref kwd)))
 
 ;;; TODO: generate these
-(defn get [uri qry]
-  (http/get (str (env :uri) uri)
-            (req {} :params qry)))
+(defn get
+  ([uri] (get uri {}))
+  ([uri qry]
+   (http/get (str (env :uri) uri)
+             (req {} :params qry))))
 
 (defn put [uri body]
   (http/put (str (env :uri) uri)
@@ -81,6 +83,9 @@
 
 (defn req-fails? [http-type http-fn]
   (req-test http-fn 422))
+
+(defn is-status [stat fut-resp]
+  (is (= stat (:status @fut-resp))) @fut-resp)
 
 (defn- test-inputs [inputs test]
   (doall (for [input-seq inputs]
