@@ -27,7 +27,7 @@
   (sh-cmd (concat ["docker"] dckr-opts [cmd] opts)))
 
 (defn ubr-jar []
-  (sh-cmd ["lein" "with-profile" (env :name) "uberjar"]))
+  (sh-cmd ["lein" "with-profile" (env :name) "uberjar" :env {"LEIN_SNAPSHOTS_IN_RELEASE" "y"}]))
 
 (defn envvars-vec [envvars]
   (->> envvars
