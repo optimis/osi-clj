@@ -1,4 +1,4 @@
-(defproject osi "0.5.0"
+(defproject osi "0.5.0-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
@@ -14,7 +14,8 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
-                 [com.datomic/datomic-pro "0.9.5544" :exclusions [joda-time]]
+                 [com.datomic/datomic-pro "0.9.5544"
+                  :exclusions [joda-time]]
                  [http-kit "2.2.0"]
                  [com.cognitect/transit-clj "0.8.288"]
                  [ring/ring "1.5.0"]
@@ -32,11 +33,19 @@
             [lein-environ "1.1.0"]
             [s3-wagon-private "1.2.0"]
             [com.carouselapps/jar-copier "0.2.0"]]
-  :release-tasks [["vcs" "assert-committed"]
+  :release-tasks [["auto-release" "checkout" "master"]
+                  ["auto-release" "merge" "develop"]
+                  ["vcs" "assert-committed"]
                   ["change" "version"
                    "leiningen.release/bump-version" "release"]
                   ["vcs" "commit"]
-                  ["vcs" "tag"]
+                  ["vcs" "tag" "v"]
+                  ["vcs" "push"]
+                  ["auto-release" "checkout" "develop"]
+                  ["auto-release" "merge" "master"]
+                  ["change" "version"
+                   "leiningen.release/bump-version"]
+                  ["vcs" "commit"]
                   ["vcs" "push"]]
   :prep-tasks ["javac" "compile" "jar-copier"]
   :jar-copier {:java-agents true
