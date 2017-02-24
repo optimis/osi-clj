@@ -11,7 +11,7 @@ test:
     - lein cloverage
 
 deployment:
-  rc:
-    branch: [rc, master]
+  develop:
+    branch: [develop, master]
     commands:
       - lein deploy private
