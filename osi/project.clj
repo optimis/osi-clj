@@ -1,4 +1,4 @@
-(defproject osi "0.5.0"
+(defproject osi "0.5.1-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
