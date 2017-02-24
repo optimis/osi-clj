@@ -34,6 +34,7 @@
             [s3-wagon-private "1.2.0"]
             [com.carouselapps/jar-copier "0.2.0"]
             [com.andrewmcveigh/lein-auto-release "0.1.10"]]
+  :scm {:dir ".."}
   :release-tasks [["auto-release" "checkout" "master"]
                   ["auto-release" "merge" "develop"]
                   ["vcs" "assert-committed"]
