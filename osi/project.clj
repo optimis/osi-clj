@@ -32,6 +32,12 @@
             [lein-environ "1.1.0"]
             [s3-wagon-private "1.2.0"]
             [com.carouselapps/jar-copier "0.2.0"]]
+  :release-tasks [["vcs" "assert-committed"]
+                  ["change" "version"
+                   "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag"]
+                  ["vcs" "push"]]
   :prep-tasks ["javac" "compile" "jar-copier"]
   :jar-copier {:java-agents true
                :destination "resources/jars"}
