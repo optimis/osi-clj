@@ -75,6 +75,23 @@
                         [(assoc ent :db/id "tx")])]
     (d/pull (db) '[*] ((:tempids tx) "tx"))))
 
+;;; TODO: refactor this hotfix
+(defn def-tx [db]
+  (defn- -tx [ent]
+    (let [tx @(d/transact ((db-conn db))
+                          [(assoc ent :db/id "tx")])]
+      (d/pull (db) '[*] ((:tempids tx) "tx"))))
+  (defn tx
+    ([ent] (if (vector? ent)
+             (do @(d/transact ((db-conn db)) [ent])
+                 (d/pull (db) '[*] (second ent)))
+             (-tx ent)))
+    ([ent attrs]
+     (if (keyword? ent)
+       (-tx (add-ns attrs ent))
+       (let [ns (namespace (ffirst (dissoc ent :db/id)))]
+         (-tx (merge ent (add-ns attrs ns))))))))
+
 (defn tx
   ([ent] (if (vector? ent)
            (do @(d/transact ((db-conn)) [ent])
