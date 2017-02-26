@@ -103,6 +103,10 @@
      (let [ns (namespace (ffirst (dissoc ent :db/id)))]
        (-tx (merge ent (add-ns attrs ns)))))))
 
+(defn def-pull [db]
+  (defn pull [exp]
+    (d/pull (db) '[*] exp)))
+
 (defn pull [exp]
  (d/pull (db) '[*] exp))
 
