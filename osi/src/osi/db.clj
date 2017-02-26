@@ -70,20 +70,14 @@
                {(keyword (str (name ns) "/" (name k))) v})
              hash-map)))
 
-(defn -tx [ent]
-  (let [tx @(d/transact ((db-conn))
-                        [(assoc ent :db/id "tx")])]
-    (d/pull (db) '[*] ((:tempids tx) "tx"))))
-
-;;; TODO: refactor this hotfix
-(defn def-tx [db]
-  (defn- -tx [ent]
-    (let [tx @(d/transact ((db-conn db))
+(defn mke-tx [db-conn db]
+  (defn -tx [ent]
+    (let [tx @(d/transact (db-conn)
                           [(assoc ent :db/id "tx")])]
       (d/pull (db) '[*] ((:tempids tx) "tx"))))
-  (defn tx
+  (fn
     ([ent] (if (vector? ent)
-             (do @(d/transact ((db-conn db)) [ent])
+             (do @(d/transact (db-conn) [ent])
                  (d/pull (db) '[*] (second ent)))
              (-tx ent)))
     ([ent attrs]
@@ -92,23 +86,11 @@
        (let [ns (namespace (ffirst (dissoc ent :db/id)))]
          (-tx (merge ent (add-ns attrs ns))))))))
 
-(defn tx
-  ([ent] (if (vector? ent)
-           (do @(d/transact ((db-conn)) [ent])
-               (d/pull (db) '[*] (second ent)))
-           (-tx ent)))
-  ([ent attrs]
-   (if (keyword? ent)
-     (-tx (add-ns attrs ent))
-     (let [ns (namespace (ffirst (dissoc ent :db/id)))]
-       (-tx (merge ent (add-ns attrs ns)))))))
-
-(defn def-pull [db]
-  (defn pull [exp]
+(defn mke-pull [db]
+  (fn [exp]
     (d/pull (db) '[*] exp)))
 
-(defn pull [exp]
- (d/pull (db) '[*] exp))
-
-(defn ref [exp]
-  (-> exp pull :db/id))
+(defn mke-ref [db]
+  (fn [exp] (->> exp
+                 (d/pull (db) '[*])
+                 :db/id)))
