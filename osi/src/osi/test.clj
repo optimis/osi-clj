@@ -61,7 +61,7 @@
   (http/patch (str (env :uri) uri)
              (req body)))
 
-(def status {get 200 put 200 post 201 del 200 patch 200})
+(def status {get 200 put 200 post [200 201] del 200 patch 200})
 
 (defn- most [inputs]
   (disj inputs (first inputs)))
@@ -75,7 +75,9 @@
     (let [req @(http-fn
                 (if (nil? body) {}
                     (into {} (first body))))]
-      (is (= status (:status req)))
+      (if (vector? status)
+        (is (.contains status (:status req)))
+        (is (= status (:status req))))
       req)))
 
 (defn req-passes? [http-type http-fn]
