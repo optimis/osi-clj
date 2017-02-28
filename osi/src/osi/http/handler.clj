@@ -45,7 +45,7 @@
 
 (defn not-found [request]
   (prn request)
-   "Not Found")
+  "Not Found")
 
 (defn wrap-api-authenticate [hdlr]
   (fn [req]
