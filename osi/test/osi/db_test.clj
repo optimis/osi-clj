@@ -9,19 +9,20 @@
             [clojure.test :refer :all])
   (:import java.util.UUID))
 
-(defent test-ent (env :datomic-db))
+(defent test-ent
+  :db "test"
+  :attrs
+  [uuid :uuid]
+  [name :string :unique-identity])
 
-(deftest ent-test
-  (is (= (osi-db/db-uri (env :datomic-db)) (db-uri))))
+(deftest db-uri-test
+  (is (.contains (db-uri) "test")))
 
-(deftest db-test
-  (is (create-database (db-uri))))
-
-(deftest schema-test
-  (is @(transact (db-conn)
-                 (s/generate-schema
-                  [(s/schema test
-                             (s/fields [uuid :uuid]))]))))
+(create-database (db-uri))
+@(transact (db-conn)
+           (s/generate-schema
+            [(s/schema test
+                       (s/fields [uuid :uuid]))]))
 
 (deftest transact-test
   (is @(transact (db-conn)

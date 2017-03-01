@@ -7,12 +7,32 @@
 
 (declare db-uri db-conn db mke-pull mke-tx)
 
-(defmacro defent [name db-name]
-  `(do (def ~'db-uri (fn [] (db-uri ~db-name)))
-       (def ~'db-conn (db-conn))
+(defmacro defdb [name]
+  `(do (def ~'ent-name ~name)
+       (def ~'db-name ~name)
+       (def ~'db-uri ~db-uri)
+       (def ~'db-conn ~db-conn)
        (def ~'db ~db)
-       (def ~'pull (mke-pull db))
-       (def ~'tx (mke-tx (db-conn) db))))
+       (def ~'pull (mke-pull db))))
+
+(defmacro defschema [& attrs]
+  `(s/generate-schema
+    [(s/schema ent-name
+      (s/fields ~@attrs))]))
+
+(defmacro defattrs
+  ([] nil)
+  ([[k] v]
+   `~(case k
+       :db (defdb (first v))
+       :attrs (defschema v)
+       (prn "unsupported key: " k v)))
+  ([k v & rst]
+   `(do (defattrs ~k ~v)
+        (defattrs ~@rst))))
+
+(defmacro defent [name & opts]
+  `(defattrs ~@(partition-by keyword? opts)))
 
 (def db-name (env :datomic-db))
 
