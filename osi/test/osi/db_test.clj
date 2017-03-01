@@ -15,8 +15,7 @@
   (is (= (osi-db/db-uri (env :datomic-db)) (db-uri))))
 
 (deftest db-test
-  (is (do (delete-database (db-uri))
-          (create-database (db-uri)))))
+  (is (create-database (db-uri))))
 
 (deftest schema-test
   (is @(transact (db-conn)
