@@ -14,8 +14,10 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
+                 [mysql/mysql-connector-java "6.0.3"]
                  [com.datomic/datomic-pro "0.9.5544"
                   :exclusions [joda-time]]
+                 [datomic-schema "1.3.0"]
                  [http-kit "2.2.0"]
                  [com.cognitect/transit-clj "0.8.288"]
                  [ring/ring "1.5.0"]
