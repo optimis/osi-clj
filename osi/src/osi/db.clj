@@ -1,11 +1,23 @@
 (ns osi.db
   (:require [clojure.walk :refer (postwalk)]
             [environ.core :refer (env)]
+            [datomic-schema.schema :as s]
             [datomic.api :as d]
             [wharf.core :refer [transform-keys]]))
 
+(declare db-uri db-conn db mke-pull mke-tx)
+
+(defmacro defent [name db-name]
+  `(do (def ~'db-uri (fn [] (db-uri ~db-name)))
+       (def ~'db-conn (db-conn))
+       (def ~'db ~db)
+       (def ~'pull (mke-pull db))
+       (def ~'tx (mke-tx (db-conn) db))))
+
+(def db-name (env :datomic-db))
+
 (defn db-uri
-  ([] (db-uri (env :datomic-db)))
+  ([] (db-uri db-name))
   ([db]
    (let [uri
          (case (env :datomic-storage)
