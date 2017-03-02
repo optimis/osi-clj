@@ -11,22 +11,27 @@
   `(do (def ~'ent-name ~name)
        (def ~'db-name ~name)
        (def ~'db-uri ~db-uri)
-       (def ~'db-conn ~db-conn)
-       (def ~'db ~db)
-       (def ~'pull (mke-pull db))))
+       (def ~'db-conn (db-conn))
+       (def ~'db ~db)))
+
+(defn defdb* [[name]]
+  `(defdb ~name))
 
 (defmacro defschema [& attrs]
-  `(s/generate-schema
-    [(s/schema ent-name
-      (s/fields ~@attrs))]))
+  `(def ~'schema
+     (s/generate-schema
+      [(s/schema ~'test
+                 (s/fields ~@attrs))])))
+
+(defn- defschema* [attrs]
+  `(defschema ~@attrs))
 
 (defmacro defattrs
   ([] nil)
   ([[k] v]
    `~(case k
-       :db (defdb (first v))
-       :attrs (defschema v)
-       (prn "unsupported key: " k v)))
+       :db (defdb* v)
+       :schema (defschema* v)))
   ([k v & rst]
    `(do (defattrs ~k ~v)
         (defattrs ~@rst))))

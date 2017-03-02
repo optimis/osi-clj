@@ -11,26 +11,18 @@
 
 (defent test-ent
   :db "test"
-  :attrs
+  :schema
   [uuid :uuid]
   [name :string :unique-identity])
 
 (deftest db-uri-test
-  (is (.contains (db-uri) "test")))
-
-(create-database (db-uri))
-@(transact (db-conn)
-           (s/generate-schema
-            [(s/schema test
-                       (s/fields [uuid :uuid]))]))
-
-(deftest transact-test
-  (is @(transact (db-conn)
-                 [{:db/id (tempid :db.part/user)
-                   :test/uuid (UUID/randomUUID)}])))
-
-(deftest tx-test
-  (is (:db/id (tx :test {:uuid (UUID/randomUUID)}))))
-
-(deftest pull-test
-  (is (pull (:db/id (tx :test {:uuid (UUID/randomUUID)})))))
+  (testing "db-uri"
+    (is (.contains (db-uri) "test")))
+  (testing "create-database"
+    (is (create-database (db-uri))))
+  (testing "transact schema"
+    (is @(transact (db-conn) schema)))
+  (testing "transact"
+    (is @(transact (db-conn)
+                   [{:db/id (tempid :db.part/user)
+                     :test/uuid (UUID/randomUUID)}]))))
