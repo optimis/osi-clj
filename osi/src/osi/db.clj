@@ -7,8 +7,10 @@
 
 (declare db-uri db-conn db mapf q mke-pull mke-tx)
 
-(defmacro defdb [name]
-  `(do (def ~'db-conn (d/connect (db-uri (name '~name))))
+(defmacro defdb [nm]
+  `(do (def ~'db-name (name '~nm))
+       (def ~'db-uri ~db-uri)
+       (def ~'db-conn (d/connect (db-uri)))
        (defn ~'db [] (d/db db-conn))
        (defn ~'q [q# & inputs#]
          (apply d/q q# (db) inputs#))

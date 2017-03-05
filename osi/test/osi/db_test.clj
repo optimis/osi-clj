@@ -1,15 +1,15 @@
 (ns osi.db-test
   (:require [environ.core :refer [env]]
-            [osi.db :refer [defent] :as osi-db]
-            [datomic-schema.schema :as s]
-            [datomic.api :refer [delete-database
-                                 create-database
-                                 tempid
-                                 transact]]
+            [osi.logger :as log]
+            [osi.db :refer [defent]]
+            [datomic.api :as d]
             [clojure.test :refer :all])
   (:import java.util.UUID))
 
-(defent test-ent
+(log/start!)
+(d/create-database "datomic:mem://test")
+
+(defent foo
   :db "test"
   :schema [uuid :uuid]
           [name :string :unique-identity])
@@ -17,11 +17,9 @@
 (deftest db-uri-test
   (testing "db-uri"
     (is (.contains (db-uri) "test")))
-  (testing "create-database"
-    (is (create-database (db-uri))))
   (testing "transact schema"
-    (is @(transact (db-conn) schema)))
+    (is @(d/transact db-conn schema)))
   (testing "transact"
-    (is @(transact (db-conn)
-                   [{:db/id (tempid :db.part/user)
-                     :test/uuid (UUID/randomUUID)}]))))
+    (is @(d/transact db-conn
+                     [{:db/id (d/tempid :db.part/user)
+                       :foo/uuid (UUID/randomUUID)}]))))
