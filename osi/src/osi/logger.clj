@@ -1,9 +1,11 @@
 (ns osi.logger
-  (:require [unilog.config :refer (start-logging!)]))
+  (:require [environ.core :refer (env)]
+            [unilog.config :refer (start-logging!)]))
 
-(defn start! [& cfg]
-  (let [default-cfg {:level "info"
-                     :console true}]
-    (start-logging!
-     (merge default-cfg
-            (:logging cfg)))))
+(defonce default-cfg
+  {:level "info"
+   :console false})
+
+(defn start!
+  ([] (start! default-cfg))
+  ([cfg] (start-logging! cfg)))
