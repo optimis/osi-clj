@@ -11,9 +11,8 @@
 
 (defent test-ent
   :db "test"
-  :schema
-  [uuid :uuid]
-  [name :string :unique-identity])
+  :schema [uuid :uuid]
+          [name :string :unique-identity])
 
 (deftest db-uri-test
   (testing "db-uri"

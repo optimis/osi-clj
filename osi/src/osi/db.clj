@@ -5,39 +5,39 @@
             [datomic.api :as d]
             [wharf.core :refer [transform-keys]]))
 
-(declare db-uri db-conn db mke-pull mke-tx)
+(declare db-uri db-conn db mapf q mke-pull mke-tx)
 
 (defmacro defdb [name]
-  `(do (def ~'ent-name ~name)
-       (def ~'db-name ~name)
-       (def ~'db-uri ~db-uri)
-       (def ~'db-conn (db-conn))
-       (def ~'db ~db)))
+  `(do (def ~'db-conn (d/connect (db-uri (name '~name))))
+       (defn ~'db [] (d/db db-conn))
+       (defn ~'q [q# & inputs#]
+         (apply d/q q# (db) inputs#))
+       (defn ~'mapf [col#]
+         (into #{} (pmap first col#)))
+       (defn ~'qf [q# & inputs#]
+         (mapf (apply q q# inputs#)))
+       (def ~'pull (mke-pull db))
+       (defn ~'pull-many [pat# eids#]
+         (d/pull-many (db) pat# eids#))))
 
-(defn defdb* [[name]]
-  `(defdb ~name))
-
-(defmacro defschema [& attrs]
+(defmacro defschema [nm attrs]
   `(def ~'schema
      (s/generate-schema
-      [(s/schema ~'test
-                 (s/fields ~@attrs))])))
+      [(s/schema ~nm (s/fields ~@attrs))])))
 
-(defn- defschema* [attrs]
-  `(defschema ~@attrs))
+(defmacro defattr [nm k v]
+  (case k
+    :db `(defdb ~(first v))
+    :schema `(defschema ~nm ~v)))
 
 (defmacro defattrs
-  ([] nil)
-  ([[k] v]
-   `~(case k
-       :db (defdb* v)
-       :schema (defschema* v)))
-  ([k v & rst]
-   `(do (defattrs ~k ~v)
-        (defattrs ~@rst))))
+  ([nm] nil)
+  ([nm [k] v & rst]
+   `(do (defattr ~nm ~k ~v)
+        (defattrs ~nm ~@rst))))
 
-(defmacro defent [name & opts]
-  `(defattrs ~@(partition-by keyword? opts)))
+(defmacro defent [nm & opts]
+  `(defattrs ~nm ~@(partition-by keyword? opts)))
 
 (def db-name (env :datomic-db))
 
@@ -124,8 +124,8 @@
          (-tx (merge ent (add-ns attrs ns))))))))
 
 (defn mke-pull [db]
-  (fn [exp]
-    (d/pull (db) '[*] exp)))
+  (fn pull ([eid] (pull '[*] eid))
+    ([exp eid] (d/pull (db) exp eid))))
 
 (defn mke-ref [db]
   (fn [exp] (->> exp
