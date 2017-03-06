@@ -126,7 +126,8 @@
          (-tx (merge ent (add-ns attrs ns))))))))
 
 (defn mke-pull [db]
-  (fn pull ([eid] (pull '[*] eid))
+  (fn
+    ([eid] (d/pull (db) '[*] eid))
     ([exp eid] (d/pull (db) exp eid))))
 
 (defn mke-ref [db]
