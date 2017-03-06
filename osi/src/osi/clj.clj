@@ -1,8 +1,7 @@
 (ns osi.clj)
 
-(defmacro aif
-  ([test consq]
-   (aif &form &env test consq nil))
+(defmacro aif {:style/indent :defn}
+  ([test consq] `(aif ~test ~consq nil))
   ([test consq else]
    `(let [~'it ~test]
       (if ~'it ~consq ~else))))
