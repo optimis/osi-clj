@@ -132,5 +132,5 @@
 
 (defn mke-ref [db]
   (fn [exp] (->> exp
-                 (d/pull (db) '[*])
-                 :db/id)))
+                (d/pull (db) '[:db/id])
+                :db/id)))
