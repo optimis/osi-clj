@@ -17,7 +17,7 @@
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
-         (mapf (apply q q# inputs#)))
+         (mapf (apply d/q q# (db) inputs#)))
        (def ~'pull (mke-pull db))
        (defn ~'at-tx [tx-data#]
         @(d/transact db-conn [tx-data#]))
