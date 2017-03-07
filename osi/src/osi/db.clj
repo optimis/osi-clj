@@ -19,6 +19,8 @@
        (defn ~'qf [q# & inputs#]
          (mapf (apply q q# inputs#)))
        (def ~'pull (mke-pull db))
+       (defn ~'at-tx [tx-data#]
+        @(d/transact db-conn [tx-data#]))
        (defn ~'pull-many [pat# eids#]
          (d/pull-many (db) pat# eids#))))
 
