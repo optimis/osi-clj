@@ -18,8 +18,8 @@
   (testing "db-uri"
     (is (.contains (db-uri) "test")))
   (testing "transact schema"
-    (is @(d/transact db-conn schema)))
+    (is @(d/transact (db-conn) schema)))
   (testing "transact"
-    (is @(d/transact db-conn
+    (is @(d/transact (db-conn)
                      [{:db/id (d/tempid :db.part/user)
                        :foo/uuid (UUID/randomUUID)}]))))
