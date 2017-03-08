@@ -10,17 +10,16 @@
 (defmacro defdb [nm]
   `(do (def ~'db-name (name '~nm))
        (def ~'db-uri ~db-uri)
-       (def ~'db-conn (d/connect (db-uri)))
-       (defn ~'db [] (d/db db-conn))
+       (def ~'db-conn (db-conn))
+       (defn ~'db []
+         (d/db (db-conn)))
        (defn ~'q [q# & inputs#]
          (apply d/q q# (db) inputs#))
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
-         (mapf (apply d/q q# (db) inputs#)))
+         (mapf (apply q q# inputs#)))
        (def ~'pull (mke-pull db))
-       (defn ~'at-tx [tx-data#]
-        @(d/transact db-conn [tx-data#]))
        (defn ~'pull-many [pat# eids#]
          (d/pull-many (db) pat# eids#))))
 
