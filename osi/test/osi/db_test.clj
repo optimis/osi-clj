@@ -15,11 +15,15 @@
           [name :string :unique-identity])
 
 (deftest db-uri-test
+  (testing "ent-name"
+    (is (= "foo" ent-name)))
   (testing "db-uri"
     (is (.contains (db-uri) "test")))
+  (testing "schema"
+    (is schema))
   (testing "transact schema"
-    (is @(d/transact (db-conn) schema)))
-  (testing "transact"
+    (is @(tx schema)))
+  (testing "transact data"
     (is @(d/transact (db-conn)
                      [{:db/id (d/tempid :db.part/user)
                        :foo/uuid (UUID/randomUUID)}]))))

@@ -1,9 +1,9 @@
 (ns osi.db
-  (:require [clojure.walk :refer (postwalk)]
-            [environ.core :refer (env)]
-            [datomic-schema.schema :as s]
+  (:require [clojure.walk :refer [postwalk]]
+            [wharf.core :refer [transform-keys]]
+            [environ.core :refer [env]]
             [datomic.api :as d]
-            [wharf.core :refer [transform-keys]]))
+            [datomic-schema.schema :as s]))
 
 (declare db-uri db-conn db mapf q mke-pull mke-tx)
 
@@ -18,10 +18,12 @@
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
-         (mapf (apply q q# inputs#)))
+         (mapf (apply d/q q# (db) inputs#)))
        (def ~'pull (mke-pull db))
        (defn ~'pull-many [pat# eids#]
-         (d/pull-many (db) pat# eids#))))
+         (d/pull-many (db) pat# eids#))
+       (defn ~'tx [data#]
+         (d/transact ((db-conn)) data#))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
@@ -40,7 +42,8 @@
         (defattrs ~nm ~@rst))))
 
 (defmacro defent [nm & opts]
-  `(defattrs ~nm ~@(partition-by keyword? opts)))
+  `(do (def ~'ent-name (name '~nm))
+       (defattrs ~nm ~@(partition-by keyword? opts))))
 
 (def db-name (env :datomic-db))
 
@@ -87,6 +90,9 @@
 (defn sanitize [tx]
   "Removes any keys with nil values."
   (into {} (filter (comp not nil? val)) tx))
+
+(defn rm-empty [tx]
+  (into {} (filter (comp not empty? val)) tx))
 
 (defn quantity-tx [quantity]
   "Returns a datomix tx for a quantity."
