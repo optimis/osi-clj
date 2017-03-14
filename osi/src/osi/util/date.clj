@@ -44,3 +44,9 @@
   (->> (grp-by-wk col date-key strt end)
        (map (fn [[wk grp]]
               [wk (group-by date-key grp)]))))
+
+(defn yesterday []
+  (c/to-date (t/minus (t/now) (t/days 1))))
+
+(defn tomorrow []
+  (c/to-date (t/plus (t/now) (t/days 1))))
