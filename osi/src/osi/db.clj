@@ -3,7 +3,8 @@
             [wharf.core :refer [transform-keys]]
             [environ.core :refer [env]]
             [datomic.api :as d]
-            [datomic-schema.schema :as s]))
+            [datomic-schema.schema :as s]
+            [wharf.core :as wharf]))
 
 (declare db-uri db-conn db mapf q mke-pull mke-tx)
 
@@ -78,14 +79,28 @@
   (d/tempid :db.part/tx))
 
 (defn rm-db-ids [map]
-  (postwalk #(if (map? %) (dissoc % :db/id) %)
+  (postwalk #(if (and (map? %) (< 1 (count %))) (dissoc % :db/id) %)
             map))
 
 (defn rm-ns [map]
-  "rm namespaces from map keys."
   (postwalk #(if (keyword? %)
                (keyword (name %)) %)
             map))
+
+(defn add-ns [hash-map ns]
+  (into {}
+        (map (fn [[k v]]
+               {(keyword (str (name ns) "/" (name k))) v})
+             hash-map)))
+
+(defn update-keys
+  ([map] map)
+  ([map key key' & keys]
+   (apply update-keys
+          (wharf/transform-keys
+           #(if (= key %) key' %)
+           map)
+          keys)))
 
 (defn sanitize [tx]
   "Removes any keys with nil values."
@@ -109,12 +124,6 @@
      :unit/symbol (:symbol unit)
      :unit/system (:system unit)
      :unit/quantity (quantity-tx quantity)}))
-
-(defn add-ns [hash-map ns]
-  (into {}
-        (map (fn [[k v]]
-               {(keyword (str (name ns) "/" (name k))) v})
-             hash-map)))
 
 (defn mke-tx [db-conn db]
   (defn -tx [ent]
