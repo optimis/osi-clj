@@ -6,7 +6,7 @@
             [datomic-schema.schema :as s]
             [wharf.core :as wharf]))
 
-(declare db-exists? db-uri db-conn db mke-pull mke-tx)
+(declare db-exists? db-uri db mke-pull mke-tx)
 
 (defn db-exists? [name]
   (let [dbs (d/get-database-names (str "datomic:" (env :datomic-storage) "://*"))]
@@ -16,11 +16,9 @@
 (defmacro defdb [nm]
   `(do (def ~'db-name (name '~nm))
        (def ~'db-uri (~db-uri ~'db-name))
-       (when (not (db-exists? ~'db-name))
-         (d/create-database ~'db-uri))
-       (def ~'db-conn (db-conn ~'db-name))
+       (defn ~'db-conn [] (d/connect ~'db-uri))
        (defn ~'db []
-         (d/db ~'db-conn))
+         (d/db (~'db-conn)))
        (defn ~'q [q# & inputs#]
          (apply d/q q# (db) inputs#))
        (defn ~'mapf [col#]
@@ -31,7 +29,7 @@
        (defn ~'pull-many [pat# eids#]
          (d/pull-many (~'db) pat# eids#))
        (defn ~'tx [data#]
-         (d/transact ~'db-conn data#))))
+         (d/transact (~'db-conn) data#))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
@@ -67,9 +65,9 @@
      (format uri db-name ip))))
 
 (defn db-conn
-  ([] (d/connect (db-uri)))
+  ([] (fn [] (d/connect (db-uri))))
   ([db-name]
-   (d/connect (db-uri db-name))))
+   (fn [] (d/connect (db-uri db-name)))))
 
 (defn db [] (d/db (d/connect (db-uri))))
 
