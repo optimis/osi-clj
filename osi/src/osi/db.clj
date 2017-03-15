@@ -9,7 +9,7 @@
 (declare db-exists? db-uri db mke-pull mke-tx)
 
 (defn db-exists? [name]
-  (let [dbs (d/get-database-names (str "datomic:" (env :datomic-storage) "://*"))]
+  (let [dbs (d/get-database-names (db-uri "*"))]
     (and (not (nil? dbs))
          (.contains dbs name))))
 
