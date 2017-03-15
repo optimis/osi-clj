@@ -13,6 +13,9 @@
     (and (not (nil? dbs))
          (.contains dbs name))))
 
+(defn resolve-ids [db tmp-ids]
+  (map #(d/resolve-tempid (db) tmp-ids %) (keys tmp-ids)))
+
 (defmacro defdb [nm]
   `(do (def ~'db-name (name '~nm))
        (def ~'db-uri (~db-uri ~'db-name))
@@ -26,10 +29,17 @@
        (defn ~'qf [q# & inputs#]
          (~'mapf (apply ~'q q# inputs#)))
        (def ~'pull (mke-pull db))
-       (defn ~'pull-many [pat# eids#]
-         (d/pull-many (~'db) pat# eids#))
-       (defn ~'tx [data#]
-         (d/transact (~'db-conn) data#))))
+       (defn ~'pull-many
+        ([eids#] (~'pull-many ~'['*] eids#))
+         ([pat# eids#] (d/pull-many (~'db) pat# eids#)))
+       (defn ~'tx
+         ([data#] (~'tx data# {:db/id (tmp-txid)}))
+         ([data# annotation#]
+          (future (let [tx# @(d/transact
+                              (~'db-conn)
+                              (into [] (merge (map #(assoc % :db/id (tmp-usrid)) data#)
+                                              annotation#)))]
+                    (~'pull-many (resolve-ids ~'db (:tempids tx#)))))))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
