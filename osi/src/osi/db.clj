@@ -23,23 +23,33 @@
        (defn ~'db []
          (d/db (~'db-conn)))
        (defn ~'q [q# & inputs#]
-         (apply d/q q# (db) inputs#))
+         (apply d/q q# (~'db) inputs#))
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
          (~'mapf (apply ~'q q# inputs#)))
+       (defn ~'find [eid#]
+         (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
        (def ~'pull (mke-pull db))
        (defn ~'pull-many
-        ([eids#] (~'pull-many ~'['*] eids#))
+         ([eids#] (~'pull-many ~'['*] eids#))
          ([pat# eids#] (d/pull-many (~'db) pat# eids#)))
        (defn ~'tx
-         ([data#] (~'tx data# {:db/id (tmp-txid)}))
-         ([data# annotation#]
-          (future (let [tx# @(d/transact
-                              (~'db-conn)
-                              (into [] (merge (map #(assoc % :db/id (tmp-usrid)) data#)
-                                              annotation#)))]
-                    (~'pull-many (resolve-ids ~'db (:tempids tx#)))))))))
+         ([data#]
+          (future
+            (let [tx# (if (vector? data#)
+                        data#
+                        (into []
+                              (map #(assoc % :db/id (tmp-usrid))
+                                   data#)))
+                  txed# @(d/transact
+                          (~'db-conn) tx#)]
+              (~'pull-many (resolve-ids ~'db (:tempids txed#))))))
+          ([data# annotation#]
+           (~'tx (merge data#
+                        (merge annotation# {:db/id (tmp-txid)})))))
+       (defn ~'rm [eid#]
+         @(~'tx [[:db.fn/retractEntity eid#]]))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
