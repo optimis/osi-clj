@@ -28,6 +28,8 @@
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
          (~'mapf (apply ~'q q# inputs#)))
+       (defn ~'qff [q# & inputs#]
+         (ffirst (apply ~'q q# inputs#)))
        (defn ~'find [eid#]
          (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
        (def ~'pull (mke-pull db))
