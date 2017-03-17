@@ -59,7 +59,9 @@
 
 (defmacro defent [nm & opts]
   `(do (def ~'ent-name (name '~nm))
-       (defattrs ~nm ~@(partition-by keyword? opts))))
+       (defattrs ~nm ~@(partition-by keyword? opts))
+       (defn ~'mke [attrs#]
+         (add-ns attrs# ~'ent-name))))
 
 (def db-name (env :datomic-db))
 
