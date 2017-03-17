@@ -6,21 +6,23 @@
             [clojure.test :refer :all])
   (:import java.util.UUID))
 
-(log/start!)
-(defdb test)
-
-;(d/create-database "datomic:mem://test")
-
 (defent foo
-  :db "test"
+  :db test
   :schema [uuid :uuid]
           [name :string :unique-identity])
 
-(deftest db-uri-test
-  (is (db-exists? "test"))
-  (is (= "foo" ent-name))
-  (is schema)
-  (is @(tx schema))
-  (is @(d/transact db-conn
-                   [{:db/id (d/tempid :db.part/user)
-                     :foo/uuid (UUID/randomUUID)}])))
+(prn schema)
+
+(defn create-foo []
+  (let [attrs {:uuid (UUID/randomUUID)
+               :name "Foo Test"}]
+    @(tx [(mke attrs)])))
+
+(d/create-database db-uri)
+@(tx schema)
+
+(deftest rm-test
+  (let [foo (:db/id (first (create-foo)))]
+    (is (find foo))
+    (rm foo)
+    (is (empty? (find foo)))))
