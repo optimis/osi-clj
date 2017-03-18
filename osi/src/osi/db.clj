@@ -42,7 +42,9 @@
             (let [tx# (if (vector? data#)
                         data#
                         (into []
-                              (map #(assoc % :db/id (tmp-usrid))
+                              (map #(if (contains? % :db/id)
+                                      %
+                                      (assoc % :db/id (tmp-usrid)))
                                    data#)))
                   txed# @(d/transact
                           (~'db-conn) tx#)]
