@@ -39,19 +39,12 @@
        (defn ~'tx
          ([data#]
           (future
-            (let [tx# (if (vector? data#)
+            (let [tx# (if (some vector? data#)
                         data#
-                        (into []
-                              (map #(if (contains? % :db/id)
-                                      %
-                                      (assoc % :db/id (tmp-usrid)))
-                                   data#)))
-                  txed# @(d/transact
-                          (~'db-conn) tx#)
-                  ret# (if (contains? data# :db/id)
-                         data#
-                         (~'pull-many (resolve-ids ~'db (:tempids txed#))))]
-              (if (= 1 (count data#))
+                        (map #(merge {:db/id (tmp-usrid)} %) data#))
+                  txed# @(d/transact (~'db-conn) tx#)
+                  ret# (~'pull-many (resolve-ids ~'db (:tempids txed#)))]
+              (if (= 1 (count ret#))
                 (first ret#)
                 ret#))))
           ([data# annotation#]
