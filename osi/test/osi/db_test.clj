@@ -11,8 +11,6 @@
   :schema [uuid :uuid]
           [name :string :unique-identity])
 
-(prn schema)
-
 (defn create-foo []
   (let [attrs {:uuid (UUID/randomUUID)
                :name "Foo Test"}]
@@ -22,7 +20,7 @@
 @(tx schema)
 
 (deftest rm-test
-  (let [foo (:db/id (first (create-foo)))]
+  (let [foo (:db/id (create-foo))]
     (is (find foo))
     (rm foo)
     (is (empty? (find foo)))))
