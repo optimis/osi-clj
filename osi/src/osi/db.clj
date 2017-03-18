@@ -47,8 +47,13 @@
                                       (assoc % :db/id (tmp-usrid)))
                                    data#)))
                   txed# @(d/transact
-                          (~'db-conn) tx#)]
-              (~'pull-many (resolve-ids ~'db (:tempids txed#))))))
+                          (~'db-conn) tx#)
+                  ret# (if (contains? data# :db/id)
+                         data#
+                         (~'pull-many (resolve-ids ~'db (:tempids txed#))))]
+              (if (= 1 (count data#))
+                (first ret#)
+                ret#))))
           ([data# annotation#]
            (~'tx (merge data#
                         (merge annotation# {:db/id (tmp-txid)})))))
