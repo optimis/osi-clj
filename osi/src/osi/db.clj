@@ -39,17 +39,23 @@
        (defn ~'tx
          ([data#]
           (future
-            (let [tx# (if (some vector? data#)
-                        data#
-                        (map #(merge {:db/id (tmp-usrid)} %) data#))
-                  txed# @(d/transact (~'db-conn) tx#)
-                  ret# (~'pull-many (resolve-ids ~'db (:tempids txed#)))]
-              (if (= 1 (count ret#))
-                (first ret#)
-                ret#))))
+            (if (some vector? data#)
+              @(d/transact (~'db-conn) data#)
+              (let [data# (map #(merge {:db/id (tmp-usrid)} %) data#)
+                    txed# @(d/transact
+                            (~'db-conn)
+                            data#)
+                    tempids# (:tempids txed#)
+                    ret# (map (fn [tx#] (update tx# :db/id
+                                               #(d/resolve-tempid (~'db) tempids# %)))
+                              data#)]
+                (if (= 1 (count ret#))
+                  (first ret#)
+                  ret#)))))
           ([data# annotation#]
            (~'tx (merge data#
-                        (merge annotation# {:db/id (tmp-txid)})))))
+                        (merge annotation#
+                               {:db/id (tmp-txid)})))))
        (defn ~'rm [eid#]
          @(~'tx [[:db.fn/retractEntity eid#]]))))
 
