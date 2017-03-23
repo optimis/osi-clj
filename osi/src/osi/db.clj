@@ -42,9 +42,7 @@
             (if (some vector? data#)
               @(d/transact (~'db-conn) data#)
               (let [data# (map #(merge {:db/id (tmp-usrid)} %) data#)
-                    txed# @(d/transact
-                            (~'db-conn)
-                            data#)
+                    txed# @(d/transact (~'db-conn) data#)
                     tempids# (:tempids txed#)
                     ret# (map (fn [tx#] (update tx# :db/id
                                                #(d/resolve-tempid (~'db) tempids# %)))

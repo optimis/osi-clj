@@ -9,7 +9,8 @@
 (defent foo
   :db test
   :schema [uuid :uuid]
-          [name :string :unique-identity])
+          [name :string :unique-identity]
+          [foos :ref :many])
 
 (defn attrs []
   {:uuid (UUID/randomUUID)
@@ -24,9 +25,17 @@
 
 (deftest tx-test
   (testing "single ent"
-    (is (pos? (:db/id @(tx [(mke (attrs))])))))
+    (let [txed @(tx [(mke (attrs))])]
+      (is (map? txed))
+      (is (pos? (:db/id txed)))))
   (testing "double ent"
-    (is (every? pos? (map :db/id @(tx [(mke (attrs)) (mke (attrs))]))))))
+    (let [txed @(tx [(mke (attrs)) (mke (attrs))])]
+      (is (= 2 (count txed)))
+      (is (every? pos? (map :db/id txed)))))
+  (testing "nested ents"
+    (let [txed @(tx [(assoc (mke (attrs)) :foo/foos [(mke (attrs))])])]
+      (is (map? txed))
+      (is (pos? (:db/id txed))))))
 
 (deftest rm-test
   (let [foo (:db/id (create-foo))]
