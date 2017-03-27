@@ -13,6 +13,9 @@
     (and (not (nil? dbs))
          (.contains dbs name))))
 
+(defn tmp-id? [id]
+  (instance? datomic.db.DbId id))
+
 (defn resolve-ids [db tmp-ids]
   (map #(d/resolve-tempid (db) tmp-ids %) (keys tmp-ids)))
 
@@ -39,13 +42,17 @@
        (defn ~'tx
          ([data#]
           (future
+            ;; TODO: excise is a map, not vec
             (if (some vector? data#)
               @(d/transact (~'db-conn) data#)
               (let [data# (map #(merge {:db/id (tmp-usrid)} %) data#)
                     txed# @(d/transact (~'db-conn) data#)
                     tempids# (:tempids txed#)
-                    ret# (map (fn [tx#] (update tx# :db/id
-                                               #(d/resolve-tempid (~'db) tempids# %)))
+                    ret# (map (fn [tx#]
+                                (update tx# :db/id
+                                        #(if (tmp-id? %)
+                                           (d/resolve-tempid (~'db) tempids# %)
+                                           %)))
                               data#)]
                 (if (= 1 (count ret#))
                   (first ret#)
