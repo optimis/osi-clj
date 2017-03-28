@@ -33,7 +33,7 @@
          (~'mapf (apply ~'q q# inputs#)))
        (defn ~'qff [q# & inputs#]
          (ffirst (apply ~'q q# inputs#)))
-       (defn ~'find [eid#]
+       (defn ~'ent [eid#]
          (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
        (def ~'pull (mke-pull db))
        (defn ~'pull-many
@@ -50,17 +50,18 @@
                     tempids# (:tempids txed#)
                     ret# (map (fn [tx#]
                                 (update tx# :db/id
-                                        #(if (tmp-id? %)
+                                        #(if (instance? datomic.db.DbId %)
                                            (d/resolve-tempid (~'db) tempids# %)
                                            %)))
                               data#)]
                 (if (= 1 (count ret#))
                   (first ret#)
                   ret#)))))
-          ([data# annotation#]
-           (~'tx (merge data#
-                        (merge annotation#
-                               {:db/id (tmp-txid)})))))
+         ([data# annotation#]
+          (let [txid# {:db/id (tmp-txid)}]
+            (~'tx (merge data#
+                         (merge annotation#
+                                txid#))))))
        (defn ~'rm [eid#]
          @(~'tx [[:db.fn/retractEntity eid#]]))))
 
