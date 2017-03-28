@@ -39,6 +39,6 @@
 
 (deftest rm-test
   (let [foo (:db/id (create-foo))]
-    (is (find foo))
+    (is (ent foo))
     (rm foo)
-    (is (empty? (find foo)))))
+    (is (empty? (ent foo)))))
