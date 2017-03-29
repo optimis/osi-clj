@@ -1,4 +1,4 @@
-(defproject osi "0.5.1"
+(defproject osi "0.5.2-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
@@ -14,18 +14,18 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
-                 [mysql/mysql-connector-java "6.0.3"]
+                 [mysql/mysql-connector-java "6.0.6"]
                  [com.datomic/datomic-pro "0.9.5544"
                   :exclusions [joda-time]]
                  [datomic-schema "1.3.0"]
                  [http-kit "2.2.0"]
-                 [com.cognitect/transit-clj "0.8.288"]
-                 [ring/ring "1.5.0"]
+                 [com.cognitect/transit-clj "0.8.297"]
+                 [ring/ring "1.5.1"]
                  [ring-middleware-format "0.7.2"]
-                 [spootnik/unilog "0.7.17"]
-                 [ring-logger "0.7.6"]
-                 [compojure "1.5.1"]
-                 [cheshire "5.6.3"]
+                 [spootnik/unilog "0.7.19"]
+                 [ring-logger "0.7.7"]
+                 [compojure "1.5.2"]
+                 [cheshire "5.7.0"]
                  [prismatic/schema "1.1.3"]
                  [yleisradio/new-reliquary "1.0.0"]
                  [me.raynes/conch "0.8.0"]

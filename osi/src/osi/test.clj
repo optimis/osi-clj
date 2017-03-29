@@ -18,6 +18,11 @@
        (stop-srvr#)
        res#)))
 
+(defn db-exists? []
+  (let [dbs (d/get-database-names "datomic:mem://*")]
+    (and (not (nil? dbs))
+         (.contains dbs (env :datomic-db)))))
+
 (defn pull-all [kwd]
   (d/q `[:find ?t ?a ?tx
          :where [?a ~kwd ?t ?tx]]
@@ -125,3 +130,4 @@
   ([http-fn uri reqs] (hdlr-tst http-fn uri reqs {}))
   ([http-fn uri reqs ops]
    (resp-status-test http-fn #(http-fn uri %) reqs ops)))
+

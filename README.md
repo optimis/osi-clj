@@ -1,14 +1,29 @@
 # osi-clj
 
-A Clojure library designed to ... well, that part is up to you.
+A clj lib to ease webapp and API dev.
 
-## Usage
+## Logger
 
-FIXME
+Logging support using https://github.com/pyr/unilog
+
+## DB
+
+DB macros make working with Datomic easy
+
+## HTTP
+
+HTTP client and handler helpers
+
+## Test
+
+DB and HTTP test helpers
+
+## Deploy
+
+Docker deploy helpers
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016-2018 OptimisCorp & contributors.
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Released under the MIT license.

@@ -1,27 +1,69 @@
 (ns osi.db
-  (:require [clojure.walk :refer (postwalk)]
-            [environ.core :refer (env)]
-            [datomic-schema.schema :as s]
+  (:require [clojure.walk :refer [postwalk]]
+            [wharf.core :refer [transform-keys]]
+            [environ.core :refer [env]]
             [datomic.api :as d]
-            [wharf.core :refer [transform-keys]]))
+            [datomic-schema.schema :as s]
+            [wharf.core :as wharf]))
 
-(declare db-uri db-conn db mapf q mke-pull mke-tx)
+(declare db-exists? db-uri db mke-pull mke-tx)
+
+(defn db-exists? [name]
+  (let [dbs (d/get-database-names (db-uri "*"))]
+    (and (not (nil? dbs))
+         (.contains dbs name))))
+
+(defn tmp-id? [id]
+  (instance? datomic.db.DbId id))
+
+(defn resolve-ids [db tmp-ids]
+  (map #(d/resolve-tempid (db) tmp-ids %) (keys tmp-ids)))
 
 (defmacro defdb [nm]
   `(do (def ~'db-name (name '~nm))
-       (def ~'db-uri ~db-uri)
-       (def ~'db-conn (db-conn))
+       (def ~'db-uri (~db-uri ~'db-name))
+       (defn ~'db-conn [] (d/connect ~'db-uri))
        (defn ~'db []
-         (d/db (db-conn)))
+         (d/db (~'db-conn)))
        (defn ~'q [q# & inputs#]
-         (apply d/q q# (db) inputs#))
+         (apply d/q q# (~'db) inputs#))
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
-         (mapf (apply q q# inputs#)))
+         (~'mapf (apply ~'q q# inputs#)))
+       (defn ~'qff [q# & inputs#]
+         (ffirst (apply ~'q q# inputs#)))
+       (defn ~'ent [eid#]
+         (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
        (def ~'pull (mke-pull db))
-       (defn ~'pull-many [pat# eids#]
-         (d/pull-many (db) pat# eids#))))
+       (defn ~'pull-many
+         ([eids#] (~'pull-many ~'['*] eids#))
+         ([pat# eids#] (d/pull-many (~'db) pat# eids#)))
+       (defn ~'tx
+         ([data#]
+          (future
+            ;; TODO: excise is a map, not vec
+            (if (some vector? data#)
+              @(d/transact (~'db-conn) data#)
+              (let [data# (map #(merge {:db/id (tmp-usrid)} %) data#)
+                    txed# @(d/transact (~'db-conn) data#)
+                    tempids# (:tempids txed#)
+                    ret# (map (fn [tx#]
+                                (update tx# :db/id
+                                        #(if (instance? datomic.db.DbId %)
+                                           (d/resolve-tempid (~'db) tempids# %)
+                                           %)))
+                              data#)]
+                (if (= 1 (count ret#))
+                  (first ret#)
+                  ret#)))))
+         ([data# annotation#]
+          (let [txid# {:db/id (tmp-txid)}]
+            (~'tx (merge data#
+                         (merge annotation#
+                                txid#))))))
+       (defn ~'rm [eid#]
+         @(~'tx [[:db.fn/retractEntity eid#]]))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
@@ -40,20 +82,23 @@
         (defattrs ~nm ~@rst))))
 
 (defmacro defent [nm & opts]
-  `(defattrs ~nm ~@(partition-by keyword? opts)))
+  `(do (def ~'ent-name (name '~nm))
+       (defattrs ~nm ~@(partition-by keyword? opts))
+       (defn ~'mke [attrs#]
+         (add-ns attrs# ~'ent-name))))
 
 (def db-name (env :datomic-db))
 
 (defn db-uri
   ([] (db-uri db-name))
-  ([db]
+  ([db-name]
    (let [uri
          (case (env :datomic-storage)
            "sql" "datomic:sql://%s?jdbc:mysql://%s/datomic?serverTimezone=PST&user=datomic&password=datomic"
            "mem" "datomic:mem://%s"
            "datomic:dev://datomicdb:4334/%s")
          ip (env :datomic-storage-ip)]
-     (format uri db ip))))
+     (format uri db-name ip))))
 
 (defn db-conn
   ([] (fn [] (d/connect (db-uri))))
@@ -75,18 +120,35 @@
   (d/tempid :db.part/tx))
 
 (defn rm-db-ids [map]
-  (postwalk #(if (map? %) (dissoc % :db/id) %)
+  (postwalk #(if (and (map? %) (< 1 (count %))) (dissoc % :db/id) %)
             map))
 
 (defn rm-ns [map]
-  "rm namespaces from map keys."
   (postwalk #(if (keyword? %)
                (keyword (name %)) %)
             map))
 
+(defn add-ns [hash-map ns]
+  (into {}
+        (map (fn [[k v]]
+               {(keyword (str (name ns) "/" (name k))) v})
+             hash-map)))
+
+(defn update-keys
+  ([map] map)
+  ([map key key' & keys]
+   (apply update-keys
+          (wharf/transform-keys
+           #(if (= key %) key' %)
+           map)
+          keys)))
+
 (defn sanitize [tx]
   "Removes any keys with nil values."
   (into {} (filter (comp not nil? val)) tx))
+
+(defn rm-empty [tx]
+  (into {} (filter (comp not empty? val)) tx))
 
 (defn quantity-tx [quantity]
   "Returns a datomix tx for a quantity."
@@ -103,12 +165,6 @@
      :unit/symbol (:symbol unit)
      :unit/system (:system unit)
      :unit/quantity (quantity-tx quantity)}))
-
-(defn add-ns [hash-map ns]
-  (into {}
-        (map (fn [[k v]]
-               {(keyword (str (name ns) "/" (name k))) v})
-             hash-map)))
 
 (defn mke-tx [db-conn db]
   (defn -tx [ent]
