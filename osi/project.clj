@@ -2,7 +2,7 @@
   :description "osi core library"
   :url "https://github.com/optimis"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://opensource.org/licenses/MIT"}
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
                                    :username [":env/dat_usr"]
                                    :password [":env/dat_passwd"]}
