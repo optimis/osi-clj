@@ -1,15 +1,15 @@
 (defproject osi "0.5.3"
   :description "osi core library"
-  :url "https://github.com/optimis"
-  :license {:name "Eclipse Public License"
+  :url "https://github.com/optimis/osi-clj.git"
+  :license {:name "MIT"
             :url "https://opensource.org/licenses/MIT"}
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :username [":env/dat_usr"]
-                                   :password [":env/dat_passwd"]}
+                                   :username [:env/dat_usr]
+                                   :password [:env/dat_passwd]}
                  "private" {:sign-releases false
                             :url "s3p://osi-leiningen/releases/"
-                            :username ":env/aws_access_key"
-                            :passphrase ":env/aws_secret_key"}}
+                            :username :env/aws_access_key
+                            :passphrase :env/aws_secret_key}}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]

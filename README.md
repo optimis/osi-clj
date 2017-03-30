@@ -1,6 +1,6 @@
 # osi-clj
 
-A clj lib to ease webapp and API dev.
+A clj lib to ease webapp and API dev
 
 ## Logger
 
