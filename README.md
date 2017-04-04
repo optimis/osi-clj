@@ -2,9 +2,9 @@
 
 A clj lib to ease webapp and API dev using datomic, ring and compojure
 
-## Logger
-
-Logging support using https://github.com/pyr/unilog
+```clojure
+[osi "0.5.4"]
+```
 
 ## DB
 
@@ -41,6 +41,10 @@ DB and HTTP test helpers
 ## Deploy
 
 Docker deploy helpers
+
+## Logger
+
+Logging support using https://github.com/pyr/unilog
 
 ## License
 
