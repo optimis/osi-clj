@@ -18,7 +18,7 @@ DB macros to make working with Datomic easy
               [name :string :indexed])
               
 Defines the following fns in the namespace:
-| fn name | description | 
+| Function | Description | 
 | --- | --- |
 | db-uri | returns the datomic DB URI based on environ vars (datomic-db, datomic-storage and datomic-storage-ip) |
 | db-conn | returns a datomic connection for transactions |
