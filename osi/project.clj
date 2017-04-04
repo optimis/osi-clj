@@ -42,6 +42,7 @@
                   ["vcs" "assert-committed"]
                   ["change" "version"
                    "leiningen.release/bump-version" "release"]
+                  ["ancient" "upgrade" ":interactive"]
                   ["vcs" "commit"]
                   ["vcs" "tag" "v"]
                   ["vcs" "push"]
@@ -49,6 +50,7 @@
                   ["auto-release" "merge" "master"]
                   ["change" "version"
                    "leiningen.release/bump-version"]
+                  ["ancient" "upgrade" ":interactive" ":allow-snapshots"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
   :prep-tasks ["javac" "compile" "jar-copier"]
