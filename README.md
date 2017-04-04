@@ -12,8 +12,6 @@ DB macros to make working with Datomic easy
 
 ### defent
 
-Usage
-
     (defent exr
       :db exrs
       :schema [uuid :uuid :unique-identity]
