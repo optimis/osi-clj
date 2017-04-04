@@ -25,6 +25,8 @@
        (defn ~'db-conn [] (d/connect ~'db-uri))
        (defn ~'db []
          (d/db (~'db-conn)))
+       (defn ~'squuid []
+         (d/squuid))
        (defn ~'q [q# & inputs#]
          (apply d/q q# (~'db) inputs#))
        (defn ~'mapf [col#]
