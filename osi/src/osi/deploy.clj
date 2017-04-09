@@ -5,13 +5,15 @@
             [me.raynes.conch :refer (programs)]
             [me.raynes.conch.low-level :as ll]))
 
-(def dckr-crt-path (str (env :home) "/Documents/Bundles/"
-                        (env :dckr-crt-home) "/"))
+(def dckr-crt-path
+  (str (env :home) "/Documents/Bundles/"
+       (env :dckr-crt-home) "/"))
 
-(def dckr-opts [(str "--host=" (env :dckr-hst)) "--tls"
-                (str "--tlscacert=" dckr-crt-path "ca.pem")
-                (str "--tlscert=" dckr-crt-path "cert.pem")
-                (str "--tlskey=" dckr-crt-path "key.pem")])
+(def dckr-opts
+  [(str "--host=" (env :dckr-hst)) "--tls"
+   (str "--tlscacert=" dckr-crt-path "ca.pem")
+   (str "--tlscert=" dckr-crt-path "cert.pem")
+   (str "--tlskey=" dckr-crt-path "key.pem")])
 
 (defn sh-cmd [cmd]
   (let [proc (apply ll/proc cmd)
@@ -23,8 +25,13 @@
                       {:err exit-code}))
       proc)))
 
-(defn dckr [cmd opts]
-  (sh-cmd (concat ["docker"] dckr-opts [cmd] opts)))
+(defn dckr
+  ([cmd opts]
+   (dckr [] cmd opts))
+  ([host-opts cmd opts]
+   (let [host-opts (if (= :remote host-opts)
+                     dckr-opts)]
+     (sh-cmd (concat ["docker"] host-opts [cmd] opts)))))
 
 (defn ubr-jar []
   (sh-cmd ["lein" "with-profile" (env :name) "uberjar" :env {"LEIN_SNAPSHOTS_IN_RELEASE" "y"}]))
@@ -56,5 +63,5 @@
     (dckr "rm" ["-f" app])
     (dckr "rmi" [app-ver])
     (dckr "rmi" [dtr-str])
-    (dckr "pull" [dtr-str])
-    (dckr "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
+    (dckr :remote "pull" [dtr-str])
+    (dckr :remote "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
