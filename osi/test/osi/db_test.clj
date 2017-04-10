@@ -58,7 +58,10 @@
 
 (deftest pull-test
   (let [txed @(tx [(mke (attrs))])]
-    (is (pull (:db/id txed)))))
+    (testing "using db/id"
+      (is (pull (:db/id txed))))
+    (testing "using ent"
+      (is (pull txed)))))
 
 (deftest pull-many-test
   (let [txed @(tx [(mke (attrs))])]

@@ -30,7 +30,7 @@
    (dckr [] cmd opts))
   ([host-opts cmd opts]
    (let [host-opts (if (= :remote host-opts)
-                     dckr-opts)]
+                     dckr-opts host-opts)]
      (sh-cmd (concat ["docker"] host-opts [cmd] opts)))))
 
 (defn ubr-jar []

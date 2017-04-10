@@ -186,8 +186,14 @@
 
 (defn mke-pull [db]
   (fn
-    ([eid] (d/pull (db) '[*] eid))
-    ([exp eid] (d/pull (db) exp eid))))
+    ([id]
+     (let [eid (if (map? id)
+                 (:db/id id) id)]
+       (d/pull (db) '[*] eid)))
+    ([exp id]
+     (let [eid (if (map? id)
+                 (:db/id id) id)]
+       (d/pull (db) exp eid)))))
 
 (defn mke-ref [db]
   (fn [exp] (->> exp
