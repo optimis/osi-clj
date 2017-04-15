@@ -1,8 +1,8 @@
 (ns osi.deploy
-  (:require [clojure.string :refer (upper-case join)]
-            [environ.core :refer (env)]
-            [wharf.core :refer (transform-keys hyphen->underscore capitalize)]
-            [me.raynes.conch :refer (programs)]
+  (:require [clojure.string :refer [upper-case replace join]]
+            [environ.core :refer [env]]
+            [wharf.core :refer [transform-keys hyphen->underscore capitalize]]
+            [me.raynes.conch :refer [programs]]
             [me.raynes.conch.low-level :as ll]))
 
 (def dckr-crt-path
@@ -56,7 +56,7 @@
                       ["npm" "run" "clean"]
                       ["npm" "run" "build"]])))
 
-(defn deploy [app envvars]
+(defn push [app envvars]
   (let [ver "latest"
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
@@ -66,9 +66,23 @@
     (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
-    (dckr "push" [dtr-str])
-    (dckr "rm" ["-f" app])
+    (dckr "push" [dtr-str])))
+
+(defn deliver [app envvars]
+  (let [ver "latest"
+        app-ver (str app ":" ver)
+        dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
+    (dckr :remote "rm" ["-f" app])
     (dckr "rmi" [app-ver])
     (dckr "rmi" [dtr-str])
     (dckr :remote "pull" [dtr-str])
     (dckr :remote "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
+
+(defn deploy [app envvars]
+  (let [args (drop 1 *command-line-args*)]
+    (if (or (empty? args)
+            (some #(= "push" %) args))
+      (push app envvars))
+    (if (or (empty? args)
+            (some #(= "deliver" %) args))
+      (deliver app envvars))))
