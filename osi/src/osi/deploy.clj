@@ -51,10 +51,17 @@
 (def links
   ["--link" (env :dckr-links)])
 
+(defn npm-init! []
+  (doall (map sh-cmd [["npm" "install"]
+                      ["npm" "run" "clean"]
+                      ["npm" "run" "build"]])))
+
 (defn deploy [app envvars]
   (let [ver "latest"
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
+    (when (some :npm envvars)
+      (npm-init!))
     (ubr-jar)
     (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
     (dckr "build" ["-t" app "."])
