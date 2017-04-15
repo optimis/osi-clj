@@ -20,10 +20,10 @@
         exit-code (ll/exit-code proc)]
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
-    (if (not (= 0 exit-code))
+    (comment (if (not (= 0 exit-code))
       (throw (ex-info (str "cmd failed: " (pr-str cmd))
                       {:err exit-code}))
-      proc)))
+      proc))))
 
 (defn dckr
   ([cmd opts]
@@ -64,6 +64,7 @@
       (npm-init!))
     (ubr-jar)
     (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
+    (dckr "rmi" [app-ver])
     (dckr "build" ["-t" app "."])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])))
@@ -73,7 +74,6 @@
         app-ver (str app ":" ver)
         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
     (dckr :remote "rm" ["-f" app])
-    (dckr "rmi" [app-ver])
     (dckr "rmi" [dtr-str])
     (dckr :remote "pull" [dtr-str])
     (dckr :remote "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
