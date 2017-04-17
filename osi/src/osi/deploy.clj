@@ -20,10 +20,11 @@
         exit-code (ll/exit-code proc)]
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
-    (comment (if (not (= 0 exit-code))
+    (if (and (env :circleci)
+             (not (= 0 exit-code)))
       (throw (ex-info (str "cmd failed: " (pr-str cmd))
                       {:err exit-code}))
-      proc))))
+      proc)))
 
 (defn dckr
   ([cmd opts]
@@ -52,9 +53,9 @@
   ["--link" (env :dckr-links)])
 
 (defn npm-init! []
-  (doall (map sh-cmd [["npm" "install"]
-                      ["npm" "run" "clean"]
-                      ["npm" "run" "build"]])))
+  (doall (map sh-cmd [["npm" "install" :dir (env :npm)]
+                      ["npm" "run" "clean" :dir (env :npm)]
+                      ["npm" "run" "build" :dir (env :npm)]])))
 
 (defn push [app envvars]
   (let [ver "latest"

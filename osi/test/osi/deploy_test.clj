@@ -7,8 +7,4 @@
   (is (= 0 (ll/exit-code (ubr-jar)))))
 
 (deftest npm-test
-  (try
-    (npm-init!)
-    (is false)
-    (catch Exception exc#
-      (is true))))
+  (is (npm-init!)))
