@@ -1,4 +1,4 @@
-(defproject osi "1.1.1-SNAPSHOT"
+(defproject osi "1.1.1"
   :description "osi core library"
   :url "https://github.com/optimis/osi-clj.git"
   :license {:name "MIT"
