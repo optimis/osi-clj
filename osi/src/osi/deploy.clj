@@ -20,8 +20,8 @@
         exit-code (ll/exit-code proc)]
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
-    (if (and (env :circleci)
-             (not (= 0 exit-code)))
+    (if (not (and (env :circleci)
+                  (= 0 exit-code)))
       (throw (ex-info (str "cmd failed: " (pr-str cmd))
                       {:err exit-code}))
       proc)))
