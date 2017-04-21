@@ -21,6 +21,7 @@
         :else (recur pred (rest coll))))
 
 (defn split-every [n coll]
-  (if (< (count coll) n) `(~coll)
-      (let [[head tail] (split-at n coll)]
-        (cons head (split-every n tail)))))
+  (cond (empty? coll) coll
+        (< (count coll) n) `(~coll)
+        :else (let [[head tail] (split-at n coll)]
+                (cons head (split-every n tail)))))
