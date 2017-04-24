@@ -1,4 +1,4 @@
-(defproject osi "1.1.3-SNAPSHOT"
+(defproject osi "1.9.0-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis/osi-clj.git"
   :license {:name "MIT"
@@ -10,7 +10,7 @@
                             :url "s3p://osi-leiningen/releases/"
                             :username :env/aws_access_key
                             :passphrase :env/aws_secret_key}}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
