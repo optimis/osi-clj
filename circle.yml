@@ -8,7 +8,6 @@ general:
 test:
   override:
     - lein test
-    - lein with-profile test cloverage
 
 deployment:
   develop:
