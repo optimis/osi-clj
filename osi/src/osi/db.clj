@@ -37,7 +37,7 @@
          (ffirst (apply ~'q q# inputs#)))
        (defn ~'ent [eid#]
          (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
-       (def ~'pull (mke-pull db))
+       (def ~'pull (mke-pull ~'db))
        (defn ~'pull-many
          ([eids#] (~'pull-many ~'['*] eids#))
          ([pat# eids#] (d/pull-many (~'db) pat# eids#)))
