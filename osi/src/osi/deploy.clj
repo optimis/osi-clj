@@ -18,10 +18,7 @@
         exit-code (ll/exit-code proc)]
     (ll/stream-to-out proc :out)
     (ll/stream-to-out proc :err)
-    (if (not (= 0 exit-code))
-      (throw (ex-info (str "cmd failed: " (pr-str cmd))
-                      {:err exit-code}))
-      proc)))
+    proc))
 
 (defn dckr [cmd opts]
   (sh-cmd (concat ["docker"] dckr-opts [cmd] opts)))
@@ -44,17 +41,20 @@
 (def links
   ["--link" (env :dckr-links)])
 
-(defn deploy [app envvars]
-  (let [ver "latest"
-        app-ver (str app ":" ver)
-        dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
-    (ubr-jar)
-    (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
-    (dckr "build" ["-t" app "."])
-    (dckr "tag" [app-ver dtr-str])
-    (dckr "push" [dtr-str])
-    (dckr "rm" ["-f" app])
-    (dckr "rmi" [app-ver])
-    (dckr "rmi" [dtr-str])
-    (dckr "pull" [dtr-str])
-    (dckr "run" (flatten ["--name" app "-d" (envvars-vec envvars) ntwrk ports links dtr-str]))))
+(defn deploy
+  ([app envars]
+   (deploy app envars "alt"))
+  ([app envvars ver]
+   (let [app-name (str app "-" ver)
+         app-ver (str app ":" ver)
+         dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
+     (ubr-jar)
+     (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
+     (dckr "build" ["-t" app "."])
+     (dckr "tag" [app dtr-str])
+     (dckr "push" [dtr-str])
+     (dckr "rm" ["-f" app-name])
+     (dckr "rmi" [app-ver])
+     (dckr "rmi" [dtr-str])
+     (dckr "pull" [dtr-str])
+     (dckr "run" (flatten ["--name" app-name "-d" (envvars-vec envvars) ntwrk ports links dtr-str])))))
