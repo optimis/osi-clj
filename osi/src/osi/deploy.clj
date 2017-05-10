@@ -31,7 +31,9 @@
      (sh-cmd (concat ["docker"] host-opts [cmd] opts)))))
 
 (defn ubr-jar []
-  (sh-cmd ["lein" "with-profile" (env :name) "uberjar" :env {"LEIN_SNAPSHOTS_IN_RELEASE" "y"}]))
+  (sh-cmd ["lein" "with-profile" (env :name) "uberjar"
+           :env {"LEIN_SNAPSHOTS_IN_RELEASE" "y"}])
+  (sh-cmd ["cp" "target/standalone.jar" "ops/standalone.jar"]))
 
 (defn envvars-vec [envvars]
   (->> envvars
@@ -62,7 +64,7 @@
     (ubr-jar)
     (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
     (dckr "rmi" [app-ver])
-    (dckr "build" ["-t" app "."])
+    (dckr "build" ["-t" app "." :dir "ops"])
     (dckr "tag" [app-ver dtr-str])
     (dckr "push" [dtr-str])))
 
