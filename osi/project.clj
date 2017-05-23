@@ -53,6 +53,7 @@
                   ["ancient" "upgrade" ":interactive" ":allow-snapshots"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
+  :uberjar-name "standalone.jar"
   :prep-tasks ["javac" "compile" "jar-copier"]
   :jar-copier {:java-agents true
                :destination "resources/jars"}
