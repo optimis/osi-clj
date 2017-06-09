@@ -6,7 +6,7 @@
             [datomic-schema.schema :as s]
             [wharf.core :as wharf]))
 
-(declare db-exists? db-uri db mke-pull mke-tx)
+(declare db-exists? db-uri db hdb mke-pull mke-tx)
 
 (defn db-exists? [name]
   (let [dbs (d/get-database-names (db-uri "*"))]
@@ -25,16 +25,24 @@
        (defn ~'db-conn [] (d/connect ~'db-uri))
        (defn ~'db []
          (d/db (~'db-conn)))
+       (defn ~'hdb []
+         (d/history (~'db)))
        (defn ~'squuid []
          (d/squuid))
        (defn ~'q [q# & inputs#]
          (apply d/q q# (~'db) inputs#))
+       (defn ~'hq [q# & inputs#]
+         (apply d/q q# (~'hdb) inputs#))
        (defn ~'mapf [col#]
          (into #{} (pmap first col#)))
        (defn ~'qf [q# & inputs#]
          (~'mapf (apply ~'q q# inputs#)))
+       (defn ~'hqf [q# & inputs#]
+         (~'mapf (apply ~'hq q# inputs#)))
        (defn ~'qff [q# & inputs#]
          (ffirst (apply ~'q q# inputs#)))
+       (defn ~'hqff [q# & inputs#]
+         (ffirst (apply ~'hq q# inputs#)))
        (defn ~'ent [eid#]
          (~'q '[:find ~'?e :in ~'$ ~'?e :where ~'[?e]] eid#))
        (def ~'pull (mke-pull ~'db))
@@ -108,6 +116,7 @@
    (fn [] (d/connect (db-uri db-name)))))
 
 (defn db [] (d/db (d/connect (db-uri))))
+(defn hdb [] (d/history (d/db (d/connect (db-uri)))))
 
 (defn delete-db []
   (d/delete-database (db-uri)))
