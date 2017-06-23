@@ -27,6 +27,7 @@
                  [compojure "1.5.2"]
                  [cheshire "5.7.0"]
                  [prismatic/schema "1.1.3"]
+                 [camdez/honeybadger "0.2.2"]
                  [yleisradio/new-reliquary "1.0.0"]
                  [me.raynes/conch "0.8.0"]
                  [wharf "0.2.0-SNAPSHOT"]]
