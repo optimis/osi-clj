@@ -4,6 +4,7 @@
             [ring.middleware.keyword-params :refer (wrap-keyword-params)]
             [ring.middleware.format :refer (wrap-restful-format)]
             [ring.middleware.reload :refer (wrap-reload)]
+            [ring.middleware.honeybadger :refer [wrap-honeybadger]]
             [ring.logger :refer (wrap-with-logger)]
             [clojure.tools.logging :refer [info]]
             [clojure.walk :refer (postwalk keywordize-keys)]
@@ -19,12 +20,17 @@
             [osi.http.util :refer (->transit <-transit ->json <-json
                                              <-rby-compat ->rby-compat
                                              header content-type)]
-            [new-reliquary.ring :refer (wrap-newrelic-transaction)]))
+            [new-reliquary.ring :refer (wrap-newrelic-transaction)]
+            [environ.core :refer [env]]))
 
 (def uri (or (System/getenv "OAUTH_URI")
              "https://cas-staging.optimispt.com"))
 
 (def token (System/getenv "OCP_ACCESS_TOKEN"))
+
+(def hb-config
+  {:api-key (env :hb-key)
+   :env (env :name)})
 
 (defn profile-request [access-token]
   @(http/get (str uri "/oauth2.0/profile?access_token=" access-token)))
@@ -127,6 +133,7 @@
 (defn hdlr [routes]
   (-> routes
       (wrap-with-logger)
+      (wrap-honeybadger hb-config)
       (wrap-newrelic-transaction)
       (wrap-rby-params)
       (wrap-rby-resp)
