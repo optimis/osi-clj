@@ -79,7 +79,7 @@
           (resp (str exc#) :status 422))))
 
 (defmacro w-parsed-req [req req-xtractr schema & bod]
-  `(w-err-hdlrs req
+  `(w-err-hdlrs ~req
     (let [~'params (parse-req ~schema (~req-xtractr ~req))]
       (when (error? ~'params)
         (throw (ex-info "Schema err" ~'params)))
