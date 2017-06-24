@@ -4,7 +4,7 @@
             [ring.middleware.keyword-params :refer (wrap-keyword-params)]
             [ring.middleware.format :refer (wrap-restful-format)]
             [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.honeybadger :refer [wrap-honeybadger]]
+            [ring.middleware.honeybadger :refer [send-exception! wrap-honeybadger]]
             [ring.logger :refer (wrap-with-logger)]
             [clojure.tools.logging :refer [info]]
             [clojure.walk :refer (postwalk keywordize-keys)]
@@ -70,16 +70,16 @@
                 obj))
             (ex-data err)))
 
-(defmacro w-err-hdlrs [bod]
+(defmacro w-err-hdlrs [req bod]
   `(try ~bod
         (catch clojure.lang.ExceptionInfo exc#
           (resp (gen-err-map exc#) :status 422))
         (catch Exception exc#
-          (prn exc#)                    ; TODO: use log
+          (send-exception! exc# req hb-config)
           (resp (str exc#) :status 422))))
 
 (defmacro w-parsed-req [req req-xtractr schema & bod]
-  `(w-err-hdlrs
+  `(w-err-hdlrs req
     (let [~'params (parse-req ~schema (~req-xtractr ~req))]
       (when (error? ~'params)
         (throw (ex-info "Schema err" ~'params)))
