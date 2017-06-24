@@ -75,7 +75,6 @@
         (catch clojure.lang.ExceptionInfo exc#
           (resp (gen-err-map exc#) :status 422))
         (catch Exception exc#
-          (send-exception! exc# ~req hb-config)
           (resp (str exc#) :status 422))))
 
 (defmacro w-parsed-req [req req-xtractr schema & bod]
