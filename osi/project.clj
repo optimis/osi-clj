@@ -15,8 +15,13 @@
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
                  [mysql/mysql-connector-java "6.0.6"]
+                 [io.netty/netty-all "4.1.2.Final"]
+                 [org.clojars.markdingram/hornetq-server "2.4.8.Final"]
+                 [camdez/ring-honeybadger "0.2.2"]
                  [com.datomic/datomic-pro "0.9.5544"
-                  :exclusions [joda-time]]
+                  :exclusions [joda-time
+                               io.netty/netty-all
+                               org.hornetq/hornetq-server]]
                  [datomic-schema "1.3.0"]
                  [http-kit "2.2.0"]
                  [com.cognitect/transit-clj "0.8.297"]
@@ -27,7 +32,6 @@
                  [compojure "1.5.2"]
                  [cheshire "5.7.0"]
                  [prismatic/schema "1.1.3"]
-                 [ring-honeybadger "0.1.0"]
                  [yleisradio/new-reliquary "1.0.0"]
                  [me.raynes/conch "0.8.0"]
                  [wharf "0.2.0-SNAPSHOT"]]

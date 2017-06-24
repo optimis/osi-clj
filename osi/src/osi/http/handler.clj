@@ -8,6 +8,7 @@
             [ring.logger :refer (wrap-with-logger)]
             [clojure.tools.logging :refer [info]]
             [clojure.walk :refer (postwalk keywordize-keys)]
+            [honeybadger.core :refer [hb-notify]]
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [compojure.handler :refer (site)]
             [cognitect.transit :as trans]
@@ -73,9 +74,11 @@
 (defmacro w-err-hdlrs [bod]
   `(try ~bod
         (catch clojure.lang.ExceptionInfo exc#
-          (resp (gen-err-map exc#) :status 422))
+          (let [err-map (gen-err-map exc#)]
+            (hb-notify hb-config err-map)
+            (resp err-map :status 422)))
         (catch Exception exc#
-          (prn exc#)                    ; TODO: use log
+          (hb-notify hb-config exc#)
           (resp (str exc#) :status 422))))
 
 (defmacro w-parsed-req [req req-xtractr schema & bod]
