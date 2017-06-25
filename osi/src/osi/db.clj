@@ -49,6 +49,8 @@
        (defn ~'pull-many
          ([eids#] (~'pull-many ~'['*] eids#))
          ([pat# eids#] (d/pull-many (~'db) pat# eids#)))
+       (defn ~'pull-tx [tx# exp# id#]
+         (d/pull (d/as-of (~'db) tx#) exp# id#))
        (defn ~'tx
          ([data#]
           (future
