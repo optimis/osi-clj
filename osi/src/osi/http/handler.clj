@@ -75,6 +75,7 @@
         (catch clojure.lang.ExceptionInfo exc#
           (resp (gen-err-map exc#) :status 422))
         (catch Exception exc#
+          (prn exc#)
           (resp (str exc#) :status 422))))
 
 (defmacro w-parsed-req [req req-xtractr schema & bod]
@@ -137,7 +138,6 @@
       (wrap-rby-params)
       (wrap-rby-resp)
       (wrap-restful-format
-       :formats [:json
-                 :transit-json])
+       :formats [:json :transit-json])
       site
       (wrap-reload)))
