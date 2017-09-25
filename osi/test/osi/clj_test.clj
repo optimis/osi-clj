@@ -31,3 +31,11 @@
     (is (= '([1]) (split-every 10 [1]))))
   (testing "when n < count of coll"
     (is (= '((1 2 3) (4 5)) (split-every 3 [1 2 3 4 5])))))
+
+(deftest limit-test
+  (let [coll (take 10 (iterate inc 0))]
+    (testing "when no offset"
+      (is (= coll (limit coll 10))))
+    (testing "when offset"
+      (is (= (drop 1 coll)
+             (limit coll 10 1))))))

@@ -25,3 +25,9 @@
         (< (count coll) n) `(~coll)
         :else (let [[head tail] (split-at n coll)]
                 (cons head (split-every n tail)))))
+
+(defmacro limit
+  ([coll num offset]
+   `(take ~num (drop ~offset ~coll)))
+  ([coll num]
+   `(limit ~coll ~num 0)))
