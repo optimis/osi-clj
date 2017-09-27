@@ -1,4 +1,4 @@
-(defproject osi "1.9.10"
+(defproject osi "1.9.10-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis/osi-clj.git"
   :license {:name "MIT"
@@ -45,7 +45,7 @@
                    "leiningen.release/bump-version" "release"]
                   ["ancient" "upgrade" ":interactive"]
                   ["vcs" "commit"]
-                  ["vcs" "tag" "v"]
+                  ["vcs" "tag" "v" "--no-sign"]
                   ["vcs" "push"]
                   ["auto-release" "checkout" "develop"]
                   ["auto-release" "merge" "master"]
