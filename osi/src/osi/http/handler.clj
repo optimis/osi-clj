@@ -7,6 +7,7 @@
             [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [org.httpkit.client :as http]
             [osi.http.schema :refer [parse-req]]
+            [schema.utils :refer :all]
             [osi.http.util
              :refer
              [->rby-compat ->transit <-rby-compat content-type header]]
