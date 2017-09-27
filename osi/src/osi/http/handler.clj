@@ -1,32 +1,22 @@
 (ns osi.http.handler
-  (:require [ring.util.response :as r]
-            [ring.middleware.params :refer (wrap-params)]
-            [ring.middleware.keyword-params :refer (wrap-keyword-params)]
-            [ring.middleware.format :refer (wrap-restful-format)]
-            [ring.middleware.reload :refer (wrap-reload)]
-            [ring.middleware.honeybadger :refer [send-exception! wrap-honeybadger]]
-            [ring.logger :refer (wrap-with-logger)]
-            [clojure.tools.logging :refer [info]]
-            [clojure.walk :refer (postwalk keywordize-keys)]
-            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
-            [compojure.handler :refer (site)]
+  (:require [cheshire.core :as json]
+            [clojure.walk :refer [keywordize-keys postwalk]]
             [cognitect.transit :as trans]
-            [cheshire.core :as json]
-            [wharf.core :refer [transform-keys hyphen->underscore]]
+            [compojure.handler :refer [site]]
+            [environ.core :refer [env]]
+            [new-reliquary.ring :refer [wrap-newrelic-transaction]]
             [org.httpkit.client :as http]
-            [schema.core :refer [validate]]
-            [schema.utils :refer :all]
             [osi.http.schema :refer [parse-req]]
-            [osi.http.util :refer (->transit <-transit ->json <-json
-                                             <-rby-compat ->rby-compat
-                                             header content-type)]
-            [new-reliquary.ring :refer (wrap-newrelic-transaction)]
-            [environ.core :refer [env]]))
+            [osi.http.util
+             :refer
+             [->rby-compat ->transit <-rby-compat content-type header]]
+            [ring.logger :refer [wrap-with-logger]]
+            [ring.middleware.format :refer [wrap-restful-format]]
+            [ring.middleware.honeybadger :refer [wrap-honeybadger]]
+            [ring.middleware.reload :refer [wrap-reload]]
+            [ring.util.response :as r]))
 
-(def uri (or (System/getenv "OAUTH_URI")
-             "https://cas-staging.optimispt.com"))
-
-(def token (System/getenv "OCP_ACCESS_TOKEN"))
+(def uri (or (env :oauth-uri) "http://cas.optimumcareprovider.local"))
 
 (def hb-config
   {:api-key (env :hb-key)
