@@ -1,5 +1,6 @@
 (ns osi.deploy
-  (:require [clojure.string :refer [upper-case replace join]]
+  (:require [clojure.string :refer
+             [split upper-case replace join]]
             [environ.core :refer [env]]
             [wharf.core :refer [transform-keys hyphen->underscore capitalize]]
             [me.raynes.conch :refer [programs]]
@@ -47,8 +48,13 @@
 (def ports
   ["-p" (env :dckr-ports)])
 
+(defn link [link]
+  ["--link" link])
+
 (def links
-  ["--link" (env :dckr-links)])
+  (map link
+       (split (env :dckr-links)
+              #" ")))
 
 (defn npm-init! []
   (doall (map sh-cmd [["npm" "install" :dir (env :npm)]
