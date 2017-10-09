@@ -51,7 +51,7 @@
                   ["auto-release" "merge" "master"]
                   ["change" "version"
                    "leiningen.release/bump-version"]
-                  ["ancient" "upgrade" ":interactive" ":allow-snapshots"]
+                  ["ancient" "upgrade" ":interactive"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
   :uberjar-name "standalone.jar"
