@@ -9,5 +9,6 @@
         :datomic-db "test"
         :datomic-storage "mem"
         :datomic-storage-ip "127.0.0.1"
+        :dckr-links ""
         :uri "http://localhost:5678"
-        :npm "src"}}}
+        :npm "resources/react"}}}

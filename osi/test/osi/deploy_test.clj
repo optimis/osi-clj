@@ -7,4 +7,4 @@
   (is (= 0 (ll/exit-code (ubr-jar)))))
 
 (deftest npm-test
-  (is (npm-init!)))
+  (is (npm-build!)))
