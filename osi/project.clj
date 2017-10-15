@@ -4,8 +4,8 @@
   :license {:name "MIT"
             :url "https://opensource.org/licenses/MIT"}
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :username [:env/dat_usr]
-                                   :password [:env/dat_passwd]}
+                                   :username ["uchouhan@optimiscorp.com"]
+                                   :password ["2a11de94-a230-4914-b64c-af4019f9d7d8"]}
                  "private" {:sign-releases false
                             :url "s3p://osi-leiningen/releases/"
                             :username :env/aws_access_key
