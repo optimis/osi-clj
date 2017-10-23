@@ -10,7 +10,7 @@
                             :url "s3p://osi-leiningen/releases/"
                             :username :env/aws_access_key
                             :passphrase :env/aws_secret_key}}
-  :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
+  :dependencies [[org.clojure/clojure "1.9.0-beta2"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
