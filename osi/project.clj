@@ -1,4 +1,4 @@
-(defproject osi "1.9.15"
+(defproject osi "1.9.16-SNAPSHOT"
   :description "osi core library"
   :url "https://github.com/optimis/osi-clj.git"
   :license {:name "MIT"
@@ -22,7 +22,7 @@
                  [com.cognitect/transit-clj "0.8.300"]
                  [ring/ring "1.6.2"]
                  [ring-middleware-format "0.7.2"]
-                 [spootnik/unilog "0.7.20"]
+                 [spootnik/unilog "0.7.21"]
                  [ring-logger "0.7.7"]
                  [compojure "1.6.0"]
                  [cheshire "5.8.0"]
