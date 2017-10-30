@@ -16,9 +16,18 @@
 (defn <-transit [obj]
   (trans/read (trans/reader obj :json)))
 
+(defn ->js-compat [obj]
+  (transform-keys #(if (keyword? %)
+                     (-> % name
+                         hyphen->underscore
+                         keyword)
+                     %)
+                  (rm-ns obj)))
+
 (defn ->rby-compat [obj]
   (transform-keys #(if (keyword? %)
-                     (-> % name hyphen->underscore)
+                     (-> % name
+                         hyphen->underscore)
                      (str %))
                   (db/rm-ns obj)))
 
