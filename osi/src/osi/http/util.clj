@@ -22,7 +22,7 @@
                          hyphen->underscore
                          keyword)
                      %)
-                  (rm-ns obj)))
+                  (db/rm-ns obj)))
 
 (defn ->rby-compat [obj]
   (transform-keys #(if (keyword? %)
