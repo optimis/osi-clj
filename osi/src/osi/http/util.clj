@@ -22,9 +22,7 @@
 
 (defn ->js-compat [obj]
   (transform-keys #(if (keyword? %)
-                     (-> (str %)
-                         (replace #":" "")
-                         (replace #"/" "-")
+                     (-> % name
                          hyphen->lower-camel)
                      %)
                   obj))
