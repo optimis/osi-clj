@@ -23,7 +23,8 @@
 (defn ->js-compat [obj]
   (transform-keys #(if (keyword? %)
                      (-> % name
-                         hyphen->lower-camel)
+                         hyphen->underscore
+                         keyword)
                      %)
                   obj))
 
