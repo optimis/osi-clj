@@ -1,8 +1,12 @@
 (ns osi.http.util
-  (:require [clojure.walk :refer [keywordize-keys]]
+  (:require [clojure.string :refer [replace]]
+            [clojure.walk :refer [keywordize-keys]]
             [cognitect.transit :as trans]
             [cheshire.core :as json]
-            [wharf.core :refer [transform-keys underscore->hyphen hyphen->underscore]]
+            [wharf.core :refer [transform-keys
+                                underscore->hyphen
+                                hyphen->underscore
+                                hyphen->lower-camel]]
             [ring.util.response :as r]
             [osi.db :as db])
   (:import [java.io ByteArrayOutputStream]))
@@ -18,11 +22,12 @@
 
 (defn ->js-compat [obj]
   (transform-keys #(if (keyword? %)
-                     (-> % name
-                         hyphen->underscore
-                         keyword)
+                     (-> (str %)
+                         (replace #":" "")
+                         (replace #"/" "-")
+                         hyphen->lower-camel)
                      %)
-                  (db/rm-ns obj)))
+                  obj))
 
 (defn ->rby-compat [obj]
   (transform-keys #(if (keyword? %)
