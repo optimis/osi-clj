@@ -11,7 +11,7 @@
                             :username :env/aws_access_key
                             :passphrase :env/aws_secret_key}}
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
-                 [org.clojure/tools.logging "0.4.0"]
+                 [org.clojure/tools.logging "0.3.1"]
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
                  [mysql/mysql-connector-java "6.0.6"]
@@ -22,7 +22,7 @@
                  [com.cognitect/transit-clj "0.8.300"]
                  [ring/ring "1.6.2"]
                  [ring-middleware-format "0.7.2"]
-                 [spootnik/unilog "0.7.21"]
+                 [spootnik/unilog "0.7.19"]
                  [ring-logger "0.7.7"]
                  [compojure "1.6.0"]
                  [cheshire "5.8.0"]
