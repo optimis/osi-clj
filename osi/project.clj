@@ -15,7 +15,7 @@
                  [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
                  [mysql/mysql-connector-java "6.0.6"]
-                 [com.datomic/datomic-pro "0.9.5561"
+                 [com.datomic/datomic-pro "0.9.5544"
                   :exclusions [joda-time]]
                  [datomic-schema "1.3.0"]
                  [http-kit "2.2.0"]
