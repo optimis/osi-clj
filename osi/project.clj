@@ -12,7 +12,7 @@
                             :passphrase :env/aws_secret_key}}
   :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/tools.logging "0.4.0"]
-                 [org.clojure/math.combinatorics "0.1.4"]
+                 [org.clojure/math.combinatorics "0.0.7"]
                  [environ "1.1.0"]
                  [mysql/mysql-connector-java "6.0.6"]
                  [com.datomic/datomic-pro "0.9.5561"
