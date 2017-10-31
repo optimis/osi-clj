@@ -1,4 +1,5 @@
 (ns osi.util.uuid
+  (:require [clojure.string :refer [replace]])
   (:import java.util.UUID))
 
 (defn- str->uuid [data]
