@@ -6,6 +6,6 @@
   (let [ns-map {:a/b 1}
         dash-map {:a-b 1}]
     (testing "when map contains a namespace"
-      (is (= {"aB" 1} (->js-compat ns-map))))
+      (is (= {:b 1} (->js-compat ns-map))))
     (testing "when map contains a dash"
-      (is (= {"aB" 1} (->js-compat dash-map))))))
+      (is (= {:a_b 1} (->js-compat dash-map))))))
