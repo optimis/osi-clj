@@ -33,7 +33,6 @@
                  [wharf "0.2.0-SNAPSHOT"]]
   :plugins [[lein-ancient "0.6.14"]
             [lein-cloverage "1.0.9"]
-            [lein-resource "0.3.0"]
             [lein-environ "1.1.0"]
             [s3-wagon-private "1.3.0"]
             [com.pupeno/jar-copier "0.4.0"]
