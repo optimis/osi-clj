@@ -8,7 +8,8 @@
                                 hyphen->underscore
                                 hyphen->lower-camel]]
             [ring.util.response :as r]
-            [osi.db :as db])
+            [osi.db :as db]
+            [clojure.string :as str])
   (:import [java.io ByteArrayOutputStream]))
 
 (defn ->transit [obj]
@@ -20,10 +21,12 @@
 (defn <-transit [obj]
   (trans/read (trans/reader obj :json)))
 
+
 (defn ->js-compat [obj]
   (transform-keys #(if (keyword? %)
                      (-> % name
                          hyphen->underscore
+                         (str/replace "?" "")
                          keyword)
                      %)
                   obj))
