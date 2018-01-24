@@ -62,7 +62,7 @@
 (defn push [app envvars]
   (let [ver "latest"
         app-ver (str app ":" ver)
-        dtr-str (str "dtr.optimispt.com/optimisdev/" app-ver)]
+        dtr-str (str (env :dckr-uri) "/" app-ver)]
     (when (contains? envvars :npm)
       (npm-build!))
     (ubr-jar)
