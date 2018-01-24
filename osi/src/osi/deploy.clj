@@ -66,7 +66,6 @@
     (when (contains? envvars :npm)
       (npm-build!))
     (ubr-jar)
-    (dckr "login" ["-u" (env :dtr-usr) "-p" (env :dtr-pwd) "dtr.optimispt.com"])
     (dckr "rmi" [app-ver])
     (dckr "build" ["-t" app "." :dir "ops"])
     (dckr "tag" [app-ver dtr-str])
