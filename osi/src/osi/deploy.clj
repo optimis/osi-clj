@@ -74,7 +74,7 @@
 (defn deliver [app envvars]
   (let [ver "latest"
         app-ver (str app ":" ver)
-        dtr-str (str (env :dtr-usr) "/" app-ver)]
+        dtr-str (str (env :dckr-uri) "/" app-ver)]
     (dckr :remote "rm" ["-f" app])
     (dckr "rmi" [dtr-str])
     (dckr :remote "pull" [dtr-str])
