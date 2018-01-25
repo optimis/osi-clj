@@ -156,9 +156,10 @@
            map)
           keys)))
 
-(defn sanitize [tx]
-  "Removes any keys with nil values."
-  (into {} (filter (comp not nil? val)) tx))
+(defn sanitize
+  ([tx] (sanitize (comp not nil?) tx))
+  ([pred tx]
+   (into {} (filter (comp pred val)) tx)))
 
 (defn rm-empty [tx]
   (into {} (filter (comp not empty? val)) tx))
