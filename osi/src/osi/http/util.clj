@@ -31,6 +31,14 @@
                      %)
                   obj))
 
+(defn <-js-compat [obj]
+  (transform-keys #(if (keyword? %)
+                     (-> % name
+                         underscore->hyphen
+                         keyword)
+                     %)
+                  obj))
+
 (defn ->rby-compat [obj]
   (transform-keys #(if (keyword? %)
                      (-> % name
