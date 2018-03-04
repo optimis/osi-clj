@@ -15,6 +15,7 @@
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.honeybadger :refer [wrap-honeybadger]]
             [ring.middleware.reload :refer [wrap-reload]]
+            [ring.middleware.session :refer [wrap-session]]
             [ring.util.response :as r]))
 
 (def uri (or (env :oauth-uri) "http://cas.optimumcareprovider.local"))
@@ -120,15 +121,13 @@
   (fn [req]
     (hndlr (rby-params-req req))))
 
-;; TODO: add wrap session
-(defn hdlr [routes]
+(defn hdlr [routes opts]
   (-> routes
       (wrap-with-logger)
       (wrap-honeybadger hb-config)
       (wrap-newrelic-transaction)
       (wrap-rby-params)
       (wrap-rby-resp)
-      (wrap-restful-format
-       :formats [:json :transit-json])
-      site
-      (wrap-reload)))
+      (wrap-restful-format :formats [:json :transit-json])
+      (site opts)
+      (wrap-reload {:dirs ["checkouts" "src"]})))
