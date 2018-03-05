@@ -121,7 +121,12 @@
   (fn [req]
     (hndlr (rby-params-req req))))
 
-(defn hdlr [routes opts]
+(defn- with-opts [routes middleware opts]
+  (if opts
+    (middleware routes opts)
+    (middleware routes)))
+
+(defn hdlr [routes & [opts]]
   (-> routes
       (wrap-with-logger)
       (wrap-honeybadger hb-config)
@@ -129,5 +134,5 @@
       (wrap-rby-params)
       (wrap-rby-resp)
       (wrap-restful-format :formats [:json :transit-json])
-      (site opts)
+      (with-opts site opts)
       (wrap-reload {:dirs ["checkouts" "src"]})))
