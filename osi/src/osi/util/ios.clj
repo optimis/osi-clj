@@ -5,4 +5,4 @@
     {:activitycontinuation {:apps [appID]}
      :applinks {:apps []
                 :details [{:appID appID
-                           :paths [*]}]}}))
+                           :paths ["*"]}]}}))
