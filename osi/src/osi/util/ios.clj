@@ -1,7 +1,7 @@
 (ns osi.util.ios)
 
 (defn- make-prefix [prefix]
-  {:appID prefix :paths ["/signup/*"]})
+  {:appID prefix :paths ["*"]})
 
 (defn- make-details [prefixes]
   (mapv make-prefix prefixes))
