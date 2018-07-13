@@ -74,8 +74,11 @@
             (~'tx (merge data#
                          (merge annotation#
                                 txid#))))))
-       (defn ~'rm [eid#]
-         @(~'tx [[:db.fn/retractEntity eid#]]))))
+       (defn ~'rm [data#]
+         @(~'tx (mapv (fn [datom#]
+                        [:db.fn/retractEntity
+                         (cond-> datom# (map? datom#) :db/id)])
+                      (if (seq? data#) data# [data#]))))))
 
 (defmacro defschema [nm attrs]
   `(def ~'schema
@@ -97,7 +100,11 @@
   `(do (def ~'ent-name (name '~nm))
        (defattrs ~nm ~@(partition-by keyword? opts))
        (defn ~'mke [attrs#]
-         (add-ns attrs# ~'ent-name))))
+         (let [id# (:id attrs#)
+               attrs# (add-ns (dissoc attrs# :id) ~'ent-name)]
+           (if id#
+             (assoc attrs# :db/id id#)
+             attrs#)))))
 
 (def db-name (env :datomic-db))
 
